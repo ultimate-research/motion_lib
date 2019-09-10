@@ -1,0 +1,15 @@
+[package]
+name = "motion_list_rs"
+version = "0.1.0"
+authors = ["BenHall-7 <benjaminjahall@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "motion_lib"
+path = "src/lib.rs"
+
+[[bin]]
+name = "yamlist"
+path = "src/main.rs"
+
+[dependencies]
