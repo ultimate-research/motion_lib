@@ -61,6 +61,7 @@ enum ScriptGroup {
     SFG2S2F2 = 5,
 }
 
+//TODO: remove boilerplate
 impl ToString for ScriptKind {
     fn to_string(&self) -> String {
         match self {

@@ -1,3 +1,5 @@
+use byteorder::{LittleEndian, BigEndian, ReadBytesExt, WriteBytesExt};
+use std::io::{Error, Read, Write};
 use std::collections::HashMap;
 use std::string::ToString;
 use std::str::FromStr;
@@ -21,6 +23,7 @@ impl Hash40 {
     }
 }
 
+// Hash40 -> string
 impl ToString for Hash40 {
     fn to_string(&self) -> String {
         match Labels.get(&self) {
@@ -30,6 +33,7 @@ impl ToString for Hash40 {
     }
 }
 
+//string -> Hash40
 impl FromStr for Hash40 {
     type Err = String;
 
@@ -38,7 +42,43 @@ impl FromStr for Hash40 {
     }
 }
 
-#[inline]
+// extension of io::Read capabilities to get Hash40 from stream
+pub trait ReadHash40<T>: ReadBytesExt {
+    fn read_hash40(&self) -> Result<Hash40, Error>;
+}
+impl ReadHash40<LittleEndian> for Read {
+    fn read_hash40(&self) -> Result<Hash40, Error> {
+        match self.read_u64::<LittleEndian>() {
+            Ok(x) => Ok(Hash40 {value: x}),
+            Err(y) => Err(y)
+        }
+    }
+}
+impl ReadHash40<BigEndian> for Read {
+    fn read_hash40(&self) -> Result<Hash40, Error> {
+        match self.read_u64::<BigEndian>() {
+            Ok(x) => Ok(Hash40 {value: x}),
+            Err(y) => Err(y)
+        }
+    }
+}
+
+// extension of io::Write capabilities to get write Hash40 to stream
+pub trait WriteHash40<T>: WriteBytesExt {
+    fn write_hash40(&self, hash: &Hash40) -> Result<(), Error>;
+}
+impl WriteHash40<LittleEndian> for Write {
+    fn write_hash40(&self, hash: &Hash40) -> Result<(), Error> {
+        self.write_u64::<LittleEndian>(hash.value)
+    }
+}
+impl WriteHash40<BigEndian> for Write {
+    fn write_hash40(&self, hash: &Hash40) -> Result<(), Error> {
+        self.write_u64::<BigEndian>(hash.value)
+    }
+}
+
+//exposed (compile-time, where applicable) function to compute a hash
 pub const fn to_hash40(word: &str) -> Hash40 {
     Hash40 { value: crc32_with_len(word) }
 }
