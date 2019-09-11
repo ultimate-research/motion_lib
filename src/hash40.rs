@@ -1,15 +1,58 @@
-pub const fn calc_hash40(word: &str) -> u64 {
-    (crc32(word) as u64) | (word.len() as u64) << 32
+use std::collections::HashMap;
+use std::string::ToString;
+use std::str::FromStr;
+
+pub static Labels: HashMap<Hash40, &str> = HashMap::default();
+
+#[derive(Debug, Hash, PartialEq, Eq)]
+pub struct Hash40 {
+    value: u64,
 }
 
-const fn crc32(word: &str) -> u32 {
+impl Hash40 {
+    #[inline]
+    pub fn crc(&self) -> u32 {
+        self.value as u32
+    }
+
+    #[inline]
+    pub fn len(&self) -> u8 {
+        (self.value >> 32) as u8
+    }
+}
+
+impl ToString for Hash40 {
+    fn to_string(&self) -> String {
+        match Labels.get(&self) {
+            Some(&l) => String::from(l),
+            None => format!("0x{:010x}", self.value),
+        }
+    }
+}
+
+impl FromStr for Hash40 {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Hash40, String> {
+        Ok(to_hash40(s))
+    }
+}
+
+#[inline]
+pub const fn to_hash40(word: &str) -> Hash40 {
+    Hash40 { value: crc32_with_len(word) }
+}
+
+const fn crc32_with_len(word: &str) -> u64 {
     let hash: u32 = 0xffffffff;
+    let mut len: u8 = 0;
     for b in word.bytes() {
         let shift = hash >> 8;
         let index = (hash ^ (b as u32)) & 0xff;
         hash = shift ^ crc_table[index as usize];
+        len += 1;
     }
-    !hash
+    ((len as u64) << 32) | (!hash as u64)
 }
 
 const crc_table: [u32; 256] = [
@@ -45,5 +88,5 @@ const crc_table: [u32; 256] = [
     0xaed16a4a, 0xd9d65adc, 0x40df0b66, 0x37d83bf0, 0xa9bcae53, 0xdebb9ec5, 0x47b2cf7f, 0x30b5ffe9,
     0xbdbdf21c, 0xcabac28a, 0x53b39330, 0x24b4a3a6, 0xbad03605, 0xcdd70693, 0x54de5729, 0x23d967bf,
     0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
-    ];
+];
 

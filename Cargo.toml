@@ -13,3 +13,6 @@ name = "yamlist"
 path = "src/main.rs"
 
 [dependencies]
+byteorder = "1.3.2"
+serde = { version = "1.0.98", features = ["derive"] }
+serde_yaml = "0.8"

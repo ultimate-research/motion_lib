@@ -1,19 +1,19 @@
-use crate::hash40;
+use crate::hash40::*;
 use std::string::ToString;
 use std::str::FromStr;
 
-pub const MAGIC: u64 = hash40::calc_hash40("motion");
+pub const MAGIC: Hash40 = to_hash40("motion");
 
 #[derive(Debug)]
 pub struct MList {
-    id_hash: u64,
+    id_hash: Hash40,
     list: Vec<Motion>,
 }
 
 #[derive(Debug)]
 pub struct Motion {
-    kind: u64,
-    game_script: u64,
+    kind: Hash40,
+    game_script: Hash40,
     flags: u16,
     transition: u8,
     animations: Vec<Animation>,
@@ -23,14 +23,14 @@ pub struct Motion {
 
 #[derive(Debug)]
 pub struct Animation {
-    name: u64,
+    name: Hash40,
     unk: u8,
 }
 
 #[derive(Debug)]
 pub struct Script {
     kind: ScriptKind,
-    name: u64,
+    name: Hash40,
 }
 
 #[derive(Debug)]
