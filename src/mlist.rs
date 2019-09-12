@@ -1,45 +1,46 @@
 use crate::hash40::*;
+use std::collections::HashMap;
 use std::string::ToString;
 use std::str::FromStr;
 
 // "motion"
 pub const MAGIC: Hash40 = Hash40 {value: 0x06f5fea1e8};
 
+//TODO: overuse of public attributes? Create .new method instead?
 #[derive(Debug)]
 pub struct MList {
-    id_hash: Hash40,
-    list: Vec<Motion>,
+    pub id_hash: Hash40,
+    pub list: HashMap<Hash40, Motion>,
 }
 
 #[derive(Debug)]
 pub struct Motion {
-    kind: Hash40,
-    game_script: Hash40,
-    flags: u16,
-    transition: u8,
-    animations: Vec<Animation>,
-    scripts: Vec<Script>,
-    extra: Option<Extra>,
+    pub game_script: Hash40,
+    pub flags: u16,
+    pub transition: u8,
+    pub animations: Vec<Animation>,
+    pub scripts: Vec<Script>,
+    pub extra: Option<Extra>,
 }
 
 #[derive(Debug)]
 pub struct Animation {
-    name: Hash40,
-    unk: u8,
+    pub name: Hash40,
+    pub unk: u8,
 }
 
 #[derive(Debug)]
 pub struct Script {
-    kind: ScriptKind,
-    name: Hash40,
+    pub kind: ScriptKind,
+    pub name: Hash40,
 }
 
 #[derive(Debug)]
 pub struct Extra {
-    xlu_start: u8,
-    xlu_end: u8,
-    cancel_frame: u8,
-    no_stop_intp: u8,
+    pub xlu_start: u8,
+    pub xlu_end: u8,
+    pub cancel_frame: u8,
+    pub no_stop_intp: u8,
 }
 
 #[derive(Debug)]
@@ -54,7 +55,7 @@ pub enum ScriptKind {
 }
 
 #[derive(Debug)]
-enum ScriptGroup {
+pub enum ScriptGroup {
     None     = 0,
     F        = 1,
     SF       = 2,

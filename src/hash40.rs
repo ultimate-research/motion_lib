@@ -2,13 +2,10 @@ use byteorder::{ByteOrder, ReadBytesExt, WriteBytesExt};
 use std::io::{Error, Read, Write};
 use std::collections::HashMap;
 use std::string::ToString;
-use std::str::FromStr;
-
-pub Labels: HashMap<Hash40, &str> = HashMap::default();
 
 #[derive(Debug, Hash, PartialEq, Eq)]
 pub struct Hash40 {
-    value: u64,
+    pub value: u64,
 }
 
 impl Hash40 {
@@ -21,24 +18,12 @@ impl Hash40 {
     pub fn len(&self) -> u8 {
         (self.value >> 32) as u8
     }
-}
 
-// Hash40 -> string
-impl ToString for Hash40 {
-    fn to_string(&self) -> String {
-        match Labels.get(&self) {
-            Some(&l) => String::from(l),
-            None => format!("0x{:010x}", self.value),
+    pub fn to_label(&self, labels: &HashMap<Hash40, String>) -> String {
+        match labels.get(self) {
+            Some(s) => String::from(s),
+            None => self.to_string(),
         }
-    }
-}
-
-//string -> Hash40
-impl FromStr for Hash40 {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Hash40, String> {
-        Ok(to_hash40(s))
     }
 }
 
@@ -65,6 +50,13 @@ impl<W: Write> WriteHash40 for W {
     }
 }
 
+// Hash40 -> string
+impl ToString for Hash40 {
+    fn to_string(&self) -> String {
+        format!("0x{:010x}", self.value)
+    }
+}
+
 //exposed (compile-time, where applicable) function to compute a hash
 pub fn to_hash40(word: &str) -> Hash40 {
     Hash40 { value: crc32_with_len(word) }
@@ -76,13 +68,13 @@ fn crc32_with_len(word: &str) -> u64 {
     for b in word.bytes() {
         let shift = hash >> 8;
         let index = (hash ^ (b as u32)) & 0xff;
-        hash = shift ^ crc_table[index as usize];
+        hash = shift ^ _CRC_TABLE[index as usize];
         len += 1;
     }
     ((len as u64) << 32) | (!hash as u64)
 }
 
-const crc_table: [u32; 256] = [
+const _CRC_TABLE: [u32; 256] = [
     0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
     0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07, 0x90bf1d91,
     0x1db71064, 0x6ab020f2, 0xf3b97148, 0x84be41de, 0x1adad47d, 0x6ddde4eb, 0xf4d4b551, 0x83d385c7,
