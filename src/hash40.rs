@@ -1,10 +1,10 @@
-use byteorder::{LittleEndian, BigEndian, ReadBytesExt, WriteBytesExt};
+use byteorder::{ByteOrder, ReadBytesExt, WriteBytesExt};
 use std::io::{Error, Read, Write};
 use std::collections::HashMap;
 use std::string::ToString;
 use std::str::FromStr;
 
-pub static Labels: HashMap<Hash40, &str> = HashMap::default();
+pub Labels: HashMap<Hash40, &str> = HashMap::default();
 
 #[derive(Debug, Hash, PartialEq, Eq)]
 pub struct Hash40 {
@@ -43,20 +43,12 @@ impl FromStr for Hash40 {
 }
 
 // extension of io::Read capabilities to get Hash40 from stream
-pub trait ReadHash40<T>: ReadBytesExt {
-    fn read_hash40(&self) -> Result<Hash40, Error>;
+pub trait ReadHash40: ReadBytesExt {
+    fn read_hash40<T: ByteOrder>(&mut self) -> Result<Hash40, Error>;
 }
-impl ReadHash40<LittleEndian> for Read {
-    fn read_hash40(&self) -> Result<Hash40, Error> {
-        match self.read_u64::<LittleEndian>() {
-            Ok(x) => Ok(Hash40 {value: x}),
-            Err(y) => Err(y)
-        }
-    }
-}
-impl ReadHash40<BigEndian> for Read {
-    fn read_hash40(&self) -> Result<Hash40, Error> {
-        match self.read_u64::<BigEndian>() {
+impl<R: Read> ReadHash40 for R {
+    fn read_hash40<T: ByteOrder>(&mut self) -> Result<Hash40, Error> {
+        match self.read_u64::<T>() {
             Ok(x) => Ok(Hash40 {value: x}),
             Err(y) => Err(y)
         }
@@ -64,27 +56,22 @@ impl ReadHash40<BigEndian> for Read {
 }
 
 // extension of io::Write capabilities to get write Hash40 to stream
-pub trait WriteHash40<T>: WriteBytesExt {
-    fn write_hash40(&self, hash: &Hash40) -> Result<(), Error>;
+pub trait WriteHash40: WriteBytesExt {
+    fn write_hash40<T: ByteOrder>(&mut self, hash: &Hash40) -> Result<(), Error>;
 }
-impl WriteHash40<LittleEndian> for Write {
-    fn write_hash40(&self, hash: &Hash40) -> Result<(), Error> {
-        self.write_u64::<LittleEndian>(hash.value)
-    }
-}
-impl WriteHash40<BigEndian> for Write {
-    fn write_hash40(&self, hash: &Hash40) -> Result<(), Error> {
-        self.write_u64::<BigEndian>(hash.value)
+impl<W: Write> WriteHash40 for W {
+    fn write_hash40<T: ByteOrder>(&mut self, hash: &Hash40) -> Result<(), Error> {
+        self.write_u64::<T>(hash.value)
     }
 }
 
 //exposed (compile-time, where applicable) function to compute a hash
-pub const fn to_hash40(word: &str) -> Hash40 {
+pub fn to_hash40(word: &str) -> Hash40 {
     Hash40 { value: crc32_with_len(word) }
 }
 
-const fn crc32_with_len(word: &str) -> u64 {
-    let hash: u32 = 0xffffffff;
+fn crc32_with_len(word: &str) -> u64 {
+    let mut hash: u32 = 0xffffffff;
     let mut len: u8 = 0;
     for b in word.bytes() {
         let shift = hash >> 8;

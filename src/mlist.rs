@@ -2,7 +2,8 @@ use crate::hash40::*;
 use std::string::ToString;
 use std::str::FromStr;
 
-pub const MAGIC: Hash40 = to_hash40("motion");
+// "motion"
+pub const MAGIC: Hash40 = Hash40 {value: 0x06f5fea1e8};
 
 #[derive(Debug)]
 pub struct MList {
