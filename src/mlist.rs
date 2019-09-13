@@ -1,6 +1,6 @@
 use crate::hash40::*;
 use serde::{Serialize, Deserialize};
-use std::collections::HashMap;
+use indexmap::IndexMap;
 use std::string::ToString;
 use std::str::FromStr;
 
@@ -11,7 +11,7 @@ pub const MAGIC: Hash40 = Hash40 {value: 0x06f5fea1e8};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MList {
     pub id_hash: Hash40,
-    pub list: HashMap<Hash40, Motion>,
+    pub list: IndexMap<Hash40, Motion>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

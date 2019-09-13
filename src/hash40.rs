@@ -1,10 +1,10 @@
 use byteorder::{ByteOrder, ReadBytesExt, WriteBytesExt};
-use serde::{Serialize, Deserialize};
+use serde::{Serialize, Deserialize, Serializer, Deserializer};
 use std::io::{Error, Read, Write};
 use std::collections::HashMap;
 use std::string::ToString;
 
-#[derive(Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
 pub struct Hash40 {
     pub value: u64,
 }
@@ -55,6 +55,12 @@ impl<W: Write> WriteHash40 for W {
 impl ToString for Hash40 {
     fn to_string(&self) -> String {
         format!("0x{:010x}", self.value)
+    }
+}
+
+impl Serialize for Hash40 {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(&self.to_string())
     }
 }
 

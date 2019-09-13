@@ -1,7 +1,7 @@
 use crate::mlist::*;
 use crate::hash40::*;
 use byteorder::{LittleEndian, ReadBytesExt};
-use std::collections::HashMap;
+use indexmap::IndexMap;
 use std::io::{Cursor, Error, ErrorKind};
 
 pub fn disassemble(cursor: &mut Cursor<Vec<u8>>) -> Result<MList, Error> {
@@ -9,7 +9,7 @@ pub fn disassemble(cursor: &mut Cursor<Vec<u8>>) -> Result<MList, Error> {
     assert_eq!(MAGIC, cursor.read_hash40::<LittleEndian>()?);
     let id = cursor.read_hash40::<LittleEndian>()?;
     let count = cursor.read_u64::<LittleEndian>()?;
-    let mut motion_list = HashMap::<Hash40, Motion>::new();
+    let mut motion_list = IndexMap::<Hash40, Motion>::new();
 
     for _ in 0..count {
         let motion_kind = cursor.read_hash40::<LittleEndian>()?;
