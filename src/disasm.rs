@@ -41,6 +41,9 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
         anims[i as usize].unk = cursor.read_u8()?
     }
 
+    //align by 4
+    cursor.set_position((cursor.position() + 3 >> 2) << 2);
+
     //TODO: make this not ugly
     let temp = size / 8;
     let mut scripts = Vec::<Script>::with_capacity(temp as usize);

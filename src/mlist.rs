@@ -1,4 +1,5 @@
 use crate::hash40::*;
+use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::string::ToString;
 use std::str::FromStr;
@@ -7,13 +8,13 @@ use std::str::FromStr;
 pub const MAGIC: Hash40 = Hash40 {value: 0x06f5fea1e8};
 
 //TODO: overuse of public attributes? Create .new method instead?
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct MList {
     pub id_hash: Hash40,
     pub list: HashMap<Hash40, Motion>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Motion {
     pub game_script: Hash40,
     pub flags: u16,
@@ -23,19 +24,19 @@ pub struct Motion {
     pub extra: Option<Extra>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Animation {
     pub name: Hash40,
     pub unk: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Script {
     pub kind: ScriptKind,
     pub name: Hash40,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Extra {
     pub xlu_start: u8,
     pub xlu_end: u8,
@@ -43,7 +44,7 @@ pub struct Extra {
     pub no_stop_intp: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum ScriptKind {
     Expression,
     Sound,

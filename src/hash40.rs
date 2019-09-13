@@ -1,9 +1,10 @@
 use byteorder::{ByteOrder, ReadBytesExt, WriteBytesExt};
+use serde::{Serialize, Deserialize};
 use std::io::{Error, Read, Write};
 use std::collections::HashMap;
 use std::string::ToString;
 
-#[derive(Debug, Hash, PartialEq, Eq)]
+#[derive(Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Hash40 {
     pub value: u64,
 }
