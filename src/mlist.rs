@@ -1,11 +1,13 @@
 use crate::hash40::*;
-use serde::{Serialize, Deserialize};
 use indexmap::IndexMap;
-use std::string::ToString;
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
+use std::string::ToString;
 
 // "motion"
-pub const MAGIC: Hash40 = Hash40 {value: 0x06f5fea1e8};
+pub const MAGIC: Hash40 = Hash40 {
+    value: 0x06f5fea1e8,
+};
 
 //TODO: overuse of public attributes? Create .new method instead?
 #[derive(Debug, Serialize, Deserialize)]
@@ -52,15 +54,15 @@ pub enum ScriptKind {
     Game2,
     Expression2,
     Sound2,
-    Effect2
+    Effect2,
 }
 
 #[derive(Debug)]
 pub enum ScriptGroup {
-    None     = 0,
-    F        = 1,
-    SF       = 2,
-    XSF      = 3,
+    None = 0,
+    F = 1,
+    SF = 2,
+    XSF = 3,
     SFG2S2F2 = 5,
 }
 

@@ -1,7 +1,7 @@
 use byteorder::{ByteOrder, ReadBytesExt, WriteBytesExt};
-use serde::{Serialize, Deserialize, Serializer, Deserializer};
-use std::io::{Error, Read, Write};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::HashMap;
+use std::io::{Error, Read, Write};
 use std::string::ToString;
 
 #[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
@@ -35,8 +35,8 @@ pub trait ReadHash40: ReadBytesExt {
 impl<R: Read> ReadHash40 for R {
     fn read_hash40<T: ByteOrder>(&mut self) -> Result<Hash40, Error> {
         match self.read_u64::<T>() {
-            Ok(x) => Ok(Hash40 {value: x}),
-            Err(y) => Err(y)
+            Ok(x) => Ok(Hash40 { value: x }),
+            Err(y) => Err(y),
         }
     }
 }
@@ -66,7 +66,9 @@ impl Serialize for Hash40 {
 
 //exposed (compile-time, where applicable) function to compute a hash
 pub fn to_hash40(word: &str) -> Hash40 {
-    Hash40 { value: crc32_with_len(word) }
+    Hash40 {
+        value: crc32_with_len(word),
+    }
 }
 
 fn crc32_with_len(word: &str) -> u64 {
@@ -113,6 +115,5 @@ const _CRC_TABLE: [u32; 256] = [
     0xa00ae278, 0xd70dd2ee, 0x4e048354, 0x3903b3c2, 0xa7672661, 0xd06016f7, 0x4969474d, 0x3e6e77db,
     0xaed16a4a, 0xd9d65adc, 0x40df0b66, 0x37d83bf0, 0xa9bcae53, 0xdebb9ec5, 0x47b2cf7f, 0x30b5ffe9,
     0xbdbdf21c, 0xcabac28a, 0x53b39330, 0x24b4a3a6, 0xbad03605, 0xcdd70693, 0x54de5729, 0x23d967bf,
-    0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
+    0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d,
 ];
-

@@ -2,7 +2,7 @@ use motion_lib;
 use serde_yaml::to_string;
 use std::env;
 use std::fs::File;
-use std::io::{Write, Error};
+use std::io::{Error, Write};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -24,6 +24,6 @@ fn main_sub(i: &str) -> Result<(), Error> {
             o.write_all(pretty.as_bytes())?;
             Ok(())
         }
-        Err(y) => Err(y)
+        Err(y) => Err(y),
     }
 }

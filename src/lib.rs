@@ -9,9 +9,7 @@ use std::io::{Cursor, Error};
 
 pub fn open(file: &str) -> Result<MList, Error> {
     match read(file) {
-        Ok(x) => {
-            disasm::disassemble(&mut Cursor::new(x))
-        }
+        Ok(x) => disasm::disassemble(&mut Cursor::new(x)),
         Err(y) => Err(y),
     }
 }

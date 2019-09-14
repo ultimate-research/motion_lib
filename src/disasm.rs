@@ -1,5 +1,5 @@
-use crate::mlist::*;
 use crate::hash40::*;
+use crate::mlist::*;
 use byteorder::{LittleEndian, ReadBytesExt};
 use indexmap::IndexMap;
 use std::io::{Cursor, Error, ErrorKind};
@@ -17,7 +17,10 @@ pub fn disassemble(cursor: &mut Cursor<Vec<u8>>) -> Result<MList, Error> {
         motion_list.insert(motion_kind, motion);
     }
 
-    Ok(MList { id_hash: id, list: motion_list })
+    Ok(MList {
+        id_hash: id,
+        list: motion_list,
+    })
 }
 
 fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
@@ -26,7 +29,10 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
     let frames = cursor.read_u8()?;
     let anm_cnt = cursor.read_u8()?;
     if anm_cnt > 3 {
-        return Err(Error::new(ErrorKind::InvalidData, "Animation count cannot exceed 3"))
+        return Err(Error::new(
+            ErrorKind::InvalidData,
+            "Animation count cannot exceed 3",
+        ));
     }
     let size = cursor.read_u32::<LittleEndian>()?;
 
@@ -52,56 +58,61 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
         temp if temp == ScriptGroup::F as u32 => {
             scripts.push(Script {
                 kind: ScriptKind::Effect,
-                name: cursor.read_hash40::<LittleEndian>()?
+                name: cursor.read_hash40::<LittleEndian>()?,
             });
         }
         temp if temp == ScriptGroup::SF as u32 => {
             scripts.push(Script {
                 kind: ScriptKind::Sound,
-                name: cursor.read_hash40::<LittleEndian>()?
+                name: cursor.read_hash40::<LittleEndian>()?,
             });
             scripts.push(Script {
                 kind: ScriptKind::Effect,
-                name: cursor.read_hash40::<LittleEndian>()?
+                name: cursor.read_hash40::<LittleEndian>()?,
             });
         }
         temp if temp == ScriptGroup::XSF as u32 => {
             scripts.push(Script {
                 kind: ScriptKind::Expression,
-                name: cursor.read_hash40::<LittleEndian>()?
+                name: cursor.read_hash40::<LittleEndian>()?,
             });
             scripts.push(Script {
                 kind: ScriptKind::Sound,
-                name: cursor.read_hash40::<LittleEndian>()?
+                name: cursor.read_hash40::<LittleEndian>()?,
             });
             scripts.push(Script {
                 kind: ScriptKind::Effect,
-                name: cursor.read_hash40::<LittleEndian>()?
+                name: cursor.read_hash40::<LittleEndian>()?,
             });
         }
         temp if temp == ScriptGroup::SFG2S2F2 as u32 => {
             scripts.push(Script {
                 kind: ScriptKind::Sound,
-                name: cursor.read_hash40::<LittleEndian>()?
+                name: cursor.read_hash40::<LittleEndian>()?,
             });
             scripts.push(Script {
                 kind: ScriptKind::Effect,
-                name: cursor.read_hash40::<LittleEndian>()?
+                name: cursor.read_hash40::<LittleEndian>()?,
             });
             scripts.push(Script {
                 kind: ScriptKind::Game2,
-                name: cursor.read_hash40::<LittleEndian>()?
+                name: cursor.read_hash40::<LittleEndian>()?,
             });
             scripts.push(Script {
                 kind: ScriptKind::Sound2,
-                name: cursor.read_hash40::<LittleEndian>()?
+                name: cursor.read_hash40::<LittleEndian>()?,
             });
             scripts.push(Script {
                 kind: ScriptKind::Effect2,
-                name: cursor.read_hash40::<LittleEndian>()?
+                name: cursor.read_hash40::<LittleEndian>()?,
             });
         }
-        _ => return Err(Error::new(ErrorKind::InvalidData, "Unmatched motion data size"))
+        _ => {
+            return Err(Error::new(
+                ErrorKind::InvalidData,
+                "Unmatched motion data size",
+            ))
+        }
     }
 
     let extra: Option<Extra> = if size % 8 == 4 {
@@ -111,8 +122,7 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
             cancel_frame: cursor.read_u8()?,
             no_stop_intp: cursor.read_u8()?,
         })
-    }
-    else {
+    } else {
         None
     };
 
