@@ -1,5 +1,5 @@
 use byteorder::{ByteOrder, ReadBytesExt, WriteBytesExt};
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, /*Deserializer,*/ Serialize, Serializer};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Error, ErrorKind, Read, Write};
@@ -19,13 +19,18 @@ pub fn load_labels(file: &str) -> Result<(), Error> {
         Ok(ref mut x) => {
             for l in BufReader::new(File::open(file)?).lines() {
                 match l {
-                    Ok(l_) => {x.insert(to_hash40(&l_), l_);}
+                    Ok(l_) => {
+                        x.insert(to_hash40(&l_), l_);
+                    }
                     Err(_) => continue,
                 }
             }
             Ok(())
         }
-        Err(_) => Err(Error::new(ErrorKind::Other, "Failed to access global: LABELS"))
+        Err(_) => Err(Error::new(
+            ErrorKind::Other,
+            "Failed to access global: LABELS",
+        )),
     }
 }
 
@@ -50,7 +55,7 @@ impl Hash40 {
             Ok(x) => match x.get(self) {
                 Some(l) => String::from(l),
                 None => self.to_string(),
-            }
+            },
             Err(_) => self.to_string(),
         }
     }
@@ -82,7 +87,7 @@ impl<W: Write> WriteHash40 for W {
 // Hash40 -> string
 impl ToString for Hash40 {
     fn to_string(&self) -> String {
-        format!("0x{:010x}", self.value) 
+        format!("0x{:010x}", self.value)
     }
 }
 

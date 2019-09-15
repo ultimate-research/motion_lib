@@ -1,6 +1,6 @@
 use crate::hash40::*;
 use indexmap::IndexMap;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, Serializer};
 use std::str::FromStr;
 use std::string::ToString;
 
@@ -19,11 +19,16 @@ pub struct MList {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Motion {
     pub game_script: Hash40,
+    #[serde(serialize_with = "ser_hex")]
     pub flags: u16,
     pub transition: u8,
     pub animations: Vec<Animation>,
     pub scripts: Vec<Script>,
     pub extra: Option<Extra>,
+}
+
+fn ser_hex<S: Serializer>(x: &u16, ser: S) -> Result<S::Ok, S::Error> {
+    ser.serialize_str(&format!("0x{:0x}", x))
 }
 
 #[derive(Debug, Serialize, Deserialize)]
