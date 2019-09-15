@@ -3,6 +3,9 @@ mod disasm;
 pub mod hash40;
 pub mod mlist;
 
+#[macro_use]
+extern crate lazy_static;
+
 use mlist::MList;
 use std::fs::read;
 use std::io::{Cursor, Error};

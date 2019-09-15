@@ -1,8 +1,33 @@
 use byteorder::{ByteOrder, ReadBytesExt, WriteBytesExt};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::HashMap;
-use std::io::{Error, Read, Write};
+use std::fs::File;
+use std::io::{BufRead, BufReader, Error, ErrorKind, Read, Write};
 use std::string::ToString;
+use std::sync::Mutex;
+
+lazy_static! {
+    static ref LABELS: Mutex<HashMap<Hash40, String>> = {
+        let l = HashMap::new();
+        //TODO: populate the dictionary at compile time with all documented labels
+        Mutex::new(l)
+    };
+}
+
+pub fn load_labels(file: &str) -> Result<(), Error> {
+    match LABELS.lock() {
+        Ok(ref mut x) => {
+            for l in BufReader::new(File::open(file)?).lines() {
+                match l {
+                    Ok(l_) => {x.insert(to_hash40(&l_), l_);}
+                    Err(_) => continue,
+                }
+            }
+            Ok(())
+        }
+        Err(_) => Err(Error::new(ErrorKind::Other, "Failed to access global: LABELS"))
+    }
+}
 
 #[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
 pub struct Hash40 {
@@ -20,10 +45,13 @@ impl Hash40 {
         (self.value >> 32) as u8
     }
 
-    pub fn to_label(&self, labels: &HashMap<Hash40, String>) -> String {
-        match labels.get(self) {
-            Some(s) => String::from(s),
-            None => self.to_string(),
+    pub fn to_label(&self) -> String {
+        match LABELS.lock() {
+            Ok(x) => match x.get(self) {
+                Some(l) => String::from(l),
+                None => self.to_string(),
+            }
+            Err(_) => self.to_string(),
         }
     }
 }
@@ -54,17 +82,17 @@ impl<W: Write> WriteHash40 for W {
 // Hash40 -> string
 impl ToString for Hash40 {
     fn to_string(&self) -> String {
-        format!("0x{:010x}", self.value)
+        format!("0x{:010x}", self.value) 
     }
 }
 
 impl Serialize for Hash40 {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serializer.serialize_str(&self.to_string())
+        serializer.serialize_str(&self.to_label())
     }
 }
 
-//exposed (compile-time, where applicable) function to compute a hash
+//exposed function to compute a hash
 pub fn to_hash40(word: &str) -> Hash40 {
     Hash40 {
         value: crc32_with_len(word),
