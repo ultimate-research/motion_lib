@@ -51,7 +51,7 @@ pub struct Extra {
     pub no_stop_intp: u8,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub enum ScriptKind {
     Expression,
     Sound,

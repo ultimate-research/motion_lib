@@ -32,7 +32,7 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
         return Err(Error::new(
             ErrorKind::InvalidData,
             "Animation count cannot exceed 3",
-        ));
+        ))
     }
     let size = cursor.read_u32::<LittleEndian>()?;
 
@@ -110,7 +110,7 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
         _ => {
             return Err(Error::new(
                 ErrorKind::InvalidData,
-                "Unmatched motion data size",
+                "Data size cannot be matched to a known group of scripts",
             ))
         }
     }
