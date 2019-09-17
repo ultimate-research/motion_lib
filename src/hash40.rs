@@ -1,5 +1,6 @@
 use byteorder::{ByteOrder, ReadBytesExt, WriteBytesExt};
-use serde::{Deserialize, /*Deserializer,*/ Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::de;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Error, ErrorKind, Read, Write};
@@ -34,7 +35,7 @@ pub fn load_labels(file: &str) -> Result<(), Error> {
     }
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
+#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Hash40 {
     pub value: u64,
 }
@@ -91,9 +92,36 @@ impl ToString for Hash40 {
     }
 }
 
+struct Hash40Visitor;
+
+impl<'de> de::Visitor<'de> for Hash40Visitor {
+    type Value = Hash40;
+
+    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::result::Result<(), std::fmt::Error> {
+        formatter.write_str("A hex-formatted integer hash value, or a string standing for its reversed form")
+    }
+
+    fn visit_str<E: de::Error>(self, value: &str) -> Result<Self::Value, E> {
+        if value.starts_with("0x") {
+            match u64::from_str_radix(&value[2..], 16) {
+                Ok(x) => Ok(Hash40{value: x}),
+                Err(y) => Err(E::custom(y))
+            }
+        } else {
+            Ok(to_hash40(value))
+        }
+    }
+}
+
 impl Serialize for Hash40 {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(&self.to_label())
+    }
+}
+
+impl<'de> Deserialize<'de> for Hash40 {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        deserializer.deserialize_str(Hash40Visitor)
     }
 }
 

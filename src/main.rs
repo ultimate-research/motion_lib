@@ -65,6 +65,12 @@ fn main() {
             }
         }
     } else if mode == 2 {
+        if labelname.len() > 0 {
+            if let Err(e) = motion_lib::hash40::load_labels(&labelname) {
+                println!("Error loading labels: {}", e);
+            }
+        }
+        
         let o = if outname.len() > 0 { &outname } else { "out.bin" };
 
         match convert_to_bin(&filename, o) {
@@ -82,7 +88,7 @@ fn print_help_text() {
     println!("  -h (help text)    = print this help text");
     println!("  -d (disassemble)  = convert to readable YAML");
     println!("  -a (assemble)     = convert to binary");
-    println!("  -l (label) <file> = load labels (only used with -d)");
+    println!("  -l (label) <file> = load labels");
     println!("  -o (out)   <file> = set output name");
 }
 

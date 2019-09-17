@@ -10,7 +10,13 @@ pub fn assemble(cursor: &mut Cursor<Vec<u8>>, mlist: &MList) -> Result<(), Error
 
     for motion in mlist.list.iter() {
         cursor.write_hash40::<LittleEndian>(motion.0)?;
-        write_motion(cursor, motion.1)?;
+        match write_motion(cursor, motion.1) {
+            Ok(_) => {}
+            Err(y) => return Err(Error::new(
+                ErrorKind::Other,
+                format!("ERROR in motion kind {}: {}", motion.0.to_label(), y)
+            ))
+        }
     }
 
     Ok(())
@@ -34,10 +40,19 @@ fn write_motion(cursor: &mut Cursor<Vec<u8>>, motion: &Motion) -> Result<(), Err
     let size = temp + (if let Some(_) = &motion.extra { 4 } else { 0 });
     cursor.write_u32::<LittleEndian>(size)?;
 
+    for i in motion.animations.iter() {
+        cursor.write_hash40::<LittleEndian>(&i.name)?;
+    }
+    for i in motion.animations.iter() {
+        cursor.write_u8(i.unk)?;
+    }
+    //align
+    cursor.set_position((cursor.position() + 3 >> 2) << 2);
+
     // push stuff onto the variable in reverse order
     // so we can pop off the top when iterating through the scripts
     let mut to_match: Vec<ScriptKind> = Vec::new();
-    match temp {
+    match temp / 8 {
         temp if temp == ScriptGroup::None as u32 => {}
         temp if temp == ScriptGroup::F as u32 => {
             to_match.push(ScriptKind::Effect);
