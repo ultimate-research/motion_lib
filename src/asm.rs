@@ -105,7 +105,7 @@ fn write_motion(cursor: &mut Cursor<Vec<u8>>, motion: &Motion) -> Result<(), Err
         cursor.write_u8(x.xlu_start)?;
         cursor.write_u8(x.xlu_end)?;
         cursor.write_u8(x.cancel_frame)?;
-        cursor.write_u8(x.no_stop_intp)?;
+        cursor.write_u8(if x.no_stop_intp {1} else {0})?;
     }
 
     Ok(())

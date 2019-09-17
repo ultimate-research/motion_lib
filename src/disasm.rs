@@ -120,7 +120,7 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
             xlu_start: cursor.read_u8()?,
             xlu_end: cursor.read_u8()?,
             cancel_frame: cursor.read_u8()?,
-            no_stop_intp: cursor.read_u8()?,
+            no_stop_intp: cursor.read_u8()? > 0,
         })
     } else {
         None

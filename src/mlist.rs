@@ -48,7 +48,7 @@ pub struct Extra {
     pub xlu_start: u8,
     pub xlu_end: u8,
     pub cancel_frame: u8,
-    pub no_stop_intp: u8,
+    pub no_stop_intp: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
