@@ -19,7 +19,7 @@ pub struct MList {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Motion {
     pub game_script: Hash40,
-    #[serde(serialize_with = "ser_hex")]
+    #[serde(serialize_with = "ser_flags")]
     pub flags: u16,
     pub transition: u8,
     pub animations: Vec<Animation>,
@@ -27,7 +27,7 @@ pub struct Motion {
     pub extra: Option<Extra>,
 }
 
-fn ser_hex<S: Serializer>(x: &u16, ser: S) -> Result<S::Ok, S::Error> {
+fn ser_flags<S: Serializer>(x: &u16, ser: S) -> Result<S::Ok, S::Error> {
     ser.serialize_str(&format!("0x{:0x}", x))
 }
 
