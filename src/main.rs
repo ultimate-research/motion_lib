@@ -14,11 +14,12 @@ fn main() {
     let mut labelname = String::default();
     let mut outname = String::default();
 
-    if len == 0 {
+    if len <= 1 {
         print_help_text();
+        return;
     }
 
-    let mut i = 0;
+    let mut i = 1;
     while i < len {
         match args[i].as_ref() {
             "-h" => print_help_text(),
@@ -70,7 +71,7 @@ fn main() {
                 println!("Error loading labels: {}", e);
             }
         }
-        
+
         let o = if outname.len() > 0 { &outname } else { "out.bin" };
 
         match convert_to_bin(&filename, o) {
