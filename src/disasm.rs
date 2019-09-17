@@ -6,7 +6,12 @@ use std::io::{Cursor, Error, ErrorKind};
 
 pub fn disassemble(cursor: &mut Cursor<Vec<u8>>) -> Result<MList, Error> {
     cursor.set_position(0);
-    assert_eq!(MAGIC, cursor.read_hash40::<LittleEndian>()?);
+    if MAGIC != cursor.read_hash40::<LittleEndian>()? {
+        return Err(Error::new(
+            ErrorKind::InvalidData,
+            "File header is invalid (is this a motion_list.bin file?)",
+        ))
+    }
     let id = cursor.read_hash40::<LittleEndian>()?;
     let count = cursor.read_u64::<LittleEndian>()?;
     let mut motion_list = IndexMap::<Hash40, Motion>::new();
