@@ -56,68 +56,10 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
     cursor.set_position((cursor.position() + 3 >> 2) << 2);
 
     //TODO: make this not ugly
-    let temp = size / 8;
-    let mut scripts = Vec::<Script>::with_capacity(temp as usize);
-    match temp {
-        temp if temp == ScriptGroup::None as u32 => {}
-        temp if temp == ScriptGroup::F as u32 => {
-            scripts.push(Script {
-                kind: ScriptKind::Effect,
-                name: cursor.read_hash40::<LittleEndian>()?,
-            });
-        }
-        temp if temp == ScriptGroup::SF as u32 => {
-            scripts.push(Script {
-                kind: ScriptKind::Sound,
-                name: cursor.read_hash40::<LittleEndian>()?,
-            });
-            scripts.push(Script {
-                kind: ScriptKind::Effect,
-                name: cursor.read_hash40::<LittleEndian>()?,
-            });
-        }
-        temp if temp == ScriptGroup::XSF as u32 => {
-            scripts.push(Script {
-                kind: ScriptKind::Expression,
-                name: cursor.read_hash40::<LittleEndian>()?,
-            });
-            scripts.push(Script {
-                kind: ScriptKind::Sound,
-                name: cursor.read_hash40::<LittleEndian>()?,
-            });
-            scripts.push(Script {
-                kind: ScriptKind::Effect,
-                name: cursor.read_hash40::<LittleEndian>()?,
-            });
-        }
-        temp if temp == ScriptGroup::SFG2S2F2 as u32 => {
-            scripts.push(Script {
-                kind: ScriptKind::Sound,
-                name: cursor.read_hash40::<LittleEndian>()?,
-            });
-            scripts.push(Script {
-                kind: ScriptKind::Effect,
-                name: cursor.read_hash40::<LittleEndian>()?,
-            });
-            scripts.push(Script {
-                kind: ScriptKind::Game2,
-                name: cursor.read_hash40::<LittleEndian>()?,
-            });
-            scripts.push(Script {
-                kind: ScriptKind::Sound2,
-                name: cursor.read_hash40::<LittleEndian>()?,
-            });
-            scripts.push(Script {
-                kind: ScriptKind::Effect2,
-                name: cursor.read_hash40::<LittleEndian>()?,
-            });
-        }
-        _ => {
-            return Err(Error::new(
-                ErrorKind::InvalidData,
-                "Data size cannot be matched to a known group of scripts",
-            ))
-        }
+    let count = size / 8;
+    let mut scripts = Vec::<Hash40>::with_capacity(count as usize);
+    for _ in 0..count {
+        scripts.push(cursor.read_hash40::<LittleEndian>()?);
     }
 
     let extra: Option<Extra> = if size % 8 == 4 {

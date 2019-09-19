@@ -49,56 +49,8 @@ fn write_motion(cursor: &mut Cursor<Vec<u8>>, motion: &Motion) -> Result<(), Err
     //align
     cursor.set_position((cursor.position() + 3 >> 2) << 2);
 
-    // push stuff onto the variable in reverse order
-    // so we can pop off the top when iterating through the scripts
-    let mut to_match: Vec<ScriptKind> = Vec::new();
-    match temp / 8 {
-        temp if temp == ScriptGroup::None as u32 => {}
-        temp if temp == ScriptGroup::F as u32 => {
-            to_match.push(ScriptKind::Effect);
-        }
-        temp if temp == ScriptGroup::SF as u32 => {
-            to_match.push(ScriptKind::Effect);
-            to_match.push(ScriptKind::Sound);
-        }
-        temp if temp == ScriptGroup::XSF as u32 => {
-            to_match.push(ScriptKind::Effect);
-            to_match.push(ScriptKind::Sound);
-            to_match.push(ScriptKind::Expression);
-        }
-        temp if temp == ScriptGroup::SFG2S2F2 as u32 => {
-            to_match.push(ScriptKind::Effect2);
-            to_match.push(ScriptKind::Sound2);
-            to_match.push(ScriptKind::Game2);
-            to_match.push(ScriptKind::Effect);
-            to_match.push(ScriptKind::Sound);
-        }
-        _ => {
-            return Err(Error::new(
-                ErrorKind::InvalidData,
-                "Script count cannot be matched to a known group of scripts",
-            ))
-        }
-    }   
-
     for script in motion.scripts.iter() {
-        match to_match.pop() {
-            Some(x) => {
-                if script.kind == x {
-                    cursor.write_hash40::<LittleEndian>(&script.name)?;
-                }
-                else {
-                    return Err(Error::new(
-                        ErrorKind::InvalidInput,
-                        "Invalid script kind entry for group of this size"
-                    ))
-                }
-            }
-            None => return Err(Error::new(
-                    ErrorKind::Other,
-                    "This error should never happen",
-                ))
-        }
+        cursor.write_hash40::<LittleEndian>(&script)?;
     }
 
     if let Some(x) = &motion.extra {
