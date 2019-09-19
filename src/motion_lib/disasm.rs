@@ -55,7 +55,6 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
     //align by 4
     cursor.set_position((cursor.position() + 3 >> 2) << 2);
 
-    //TODO: make this not ugly
     let count = size / 8;
     let mut scripts = Vec::<Hash40>::with_capacity(count as usize);
     for _ in 0..count {

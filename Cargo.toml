@@ -6,11 +6,11 @@ edition = "2018"
 
 [lib]
 name = "motion_lib"
-path = "src/lib.rs"
+path = "src/motion_lib/lib.rs"
 
 [[bin]]
 name = "yamlist"
-path = "src/main.rs"
+path = "src/yamlist/main.rs"
 
 [dependencies]
 byteorder = "1.3.2"
