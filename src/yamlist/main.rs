@@ -30,7 +30,7 @@ fn main() {
                 if i < len {             
                     labelname = String::from(&args[i]);
                 } else {
-                    println!("missing 'file' arg for label")
+                    println!("missing 'file' arg for label");
                 }
             }
             "-o" => {
@@ -38,7 +38,7 @@ fn main() {
                 if i < len {
                     outname = String::from(&args[i]);
                 } else {
-                    println!("missing 'file' arg for output name")
+                    println!("missing 'file' arg for output name");
                 }
             }
             _ => filename = String::from(&args[i]),
@@ -46,9 +46,9 @@ fn main() {
         i += 1;
     }
     if filename.len() == 0 {
-        println!("missing 'file' in args")
+        println!("missing 'file' in args");
     } else if mode == 0 {
-        println!("missing '-d' or '-a' mode in args")
+        println!("missing '-d' or '-a' mode in args");
     } else if mode == 1 {
         if labelname.len() > 0 {
             if let Err(e) = motion_lib::hash40::load_labels(&labelname) {
