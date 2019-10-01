@@ -12,9 +12,14 @@ path = "src/motion_lib/lib.rs"
 name = "yamlist"
 path = "src/yamlist/main.rs"
 
+[[bin]]
+name = "motion_lua"
+path = "src/motion_lua/main.rs"
+
 [dependencies]
 byteorder = "1.3.2"
 serde = { version = "1.0.98", features = ["derive"] }
 serde_yaml = "0.8"
 indexmap = { version = "1.2.0", features = ["serde-1"] }
 lazy_static = "1.4.0"
+rlua = "0.16.3"
