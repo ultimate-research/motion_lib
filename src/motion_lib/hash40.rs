@@ -35,7 +35,7 @@ pub fn load_labels(file: &str) -> Result<(), Error> {
     }
 }
 
-#[derive(Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Hash40 {
     pub value: u64,
 }
