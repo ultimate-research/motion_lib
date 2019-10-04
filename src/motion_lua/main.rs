@@ -49,7 +49,7 @@ fn do_lua(code: &str) -> Result<()> {
 
     lua.context(|lua_ctx| {
         let g = lua_ctx.globals();
-        g.set("MList", structs::LibGlobal{
+        g.set("Lib", structs::LibGlobal{
             open_root: PathBuf::default(),
             save_root: PathBuf::default(),
         })?;
