@@ -4,7 +4,6 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone)]
 pub(crate) struct LibGlobal {
-    //inner: motion_lib::mlist::MList,
     pub open_root: PathBuf,
     pub save_root: PathBuf,
 }
@@ -21,11 +20,14 @@ pub(crate) struct MotionLua {
 impl UserData for LibGlobal {
     fn add_methods<'lua, M: UserDataMethods<'lua, Self>>(methods: &mut M) {
         methods.add_method("open", |ctx, this, path: String| {
-            
-            match motion_lib::open(&path) {
+            let rel = PathBuf::from(path);
+            let full_open_path = this.open_root.join(rel.clone());
+            let full_save_path = this.save_root.join(rel);
+
+            match motion_lib::open(&full_open_path) {
                 Ok(x) => {
                     MListLua {
-                        save_to: PathBuf::from(path),
+                        save_to: full_save_path,
                         inner: x,
                     }.to_lua_multi(ctx)
                 }

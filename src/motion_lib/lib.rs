@@ -9,15 +9,16 @@ extern crate lazy_static;
 use mlist::MList;
 use std::io::{Cursor, Error, prelude::*};
 use std::fs::{read, File};
+use std::path::Path;
 
-pub fn open(file: &str) -> Result<MList, Error> {
+pub fn open<P: AsRef<Path>>(file: P) -> Result<MList, Error> {
     match read(file) {
         Ok(x) => disasm::disassemble(&mut Cursor::new(x)),
         Err(y) => Err(y),
     }
 }
 
-pub fn save(file: &str, mlist: &MList) -> Result<(), Error> {
+pub fn save<P: AsRef<Path>>(file: P, mlist: &MList) -> Result<(), Error> {
     match File::create(file) {
         Ok(mut x) => {
             let mut cursor = Cursor::new(Vec::<u8>::new());
