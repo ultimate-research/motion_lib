@@ -7,8 +7,8 @@ pub mod mlist;
 extern crate lazy_static;
 
 use mlist::MList;
-use std::io::{Cursor, Error, prelude::*};
 use std::fs::{read, File};
+use std::io::{prelude::*, Cursor, Error};
 use std::path::Path;
 
 pub fn open<P: AsRef<Path>>(file: P) -> Result<MList, Error> {

@@ -10,7 +10,7 @@ pub fn disassemble(cursor: &mut Cursor<Vec<u8>>) -> Result<MList, Error> {
         return Err(Error::new(
             ErrorKind::InvalidData,
             "File header is invalid (is this a motion_list.bin file?)",
-        ))
+        ));
     }
     let id = cursor.read_hash40::<LittleEndian>()?;
     let count = cursor.read_u64::<LittleEndian>()?;
@@ -37,7 +37,7 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
         return Err(Error::new(
             ErrorKind::InvalidData,
             "Animation count cannot exceed 3",
-        ))
+        ));
     }
     let size = cursor.read_u32::<LittleEndian>()?;
 

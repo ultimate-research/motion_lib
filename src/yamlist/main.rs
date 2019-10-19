@@ -1,5 +1,5 @@
 use motion_lib;
-use serde_yaml::{to_string, from_str};
+use serde_yaml::{from_str, to_string};
 use std::borrow::Borrow;
 use std::env;
 use std::error::Error;
@@ -27,7 +27,7 @@ fn main() {
             "-a" => mode = 2,
             "-l" => {
                 i += 1;
-                if i < len {             
+                if i < len {
                     labelname = String::from(&args[i]);
                 } else {
                     println!("missing 'file' arg for label");
@@ -56,7 +56,11 @@ fn main() {
             }
         }
 
-        let o = if outname.len() > 0 { &outname } else { "out.yml" };
+        let o = if outname.len() > 0 {
+            &outname
+        } else {
+            "out.yml"
+        };
 
         match convert_to_yaml(&filename, o) {
             Ok(_) => {}
@@ -72,7 +76,11 @@ fn main() {
             }
         }
 
-        let o = if outname.len() > 0 { &outname } else { "out.bin" };
+        let o = if outname.len() > 0 {
+            &outname
+        } else {
+            "out.bin"
+        };
 
         match convert_to_bin(&filename, o) {
             Ok(_) => {}
@@ -110,12 +118,10 @@ fn convert_to_bin(i: &str, o: &str) -> Result<(), Box<Error>> {
     let mut s: String = String::default();
     f.read_to_string(&mut s)?;
     match from_str::<motion_lib::mlist::MList>(&s) {
-        Ok(x) => {
-            match motion_lib::save(o, &x) {
-                Ok(_) => Ok(()),
-                Err(y) => Err(Box::new(y)),
-            }
-        }
-        Err(y) => Err(Box::new(y))
+        Ok(x) => match motion_lib::save(o, &x) {
+            Ok(_) => Ok(()),
+            Err(y) => Err(Box::new(y)),
+        },
+        Err(y) => Err(Box::new(y)),
     }
 }

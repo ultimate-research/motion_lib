@@ -1,6 +1,6 @@
 use byteorder::{ByteOrder, ReadBytesExt, WriteBytesExt};
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde::de;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Error, ErrorKind, Read, Write};
@@ -97,15 +97,20 @@ struct Hash40Visitor;
 impl<'de> de::Visitor<'de> for Hash40Visitor {
     type Value = Hash40;
 
-    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::result::Result<(), std::fmt::Error> {
-        formatter.write_str("A hex-formatted integer hash value, or a string standing for its reversed form")
+    fn expecting(
+        &self,
+        formatter: &mut std::fmt::Formatter,
+    ) -> std::result::Result<(), std::fmt::Error> {
+        formatter.write_str(
+            "A hex-formatted integer hash value, or a string standing for its reversed form",
+        )
     }
 
     fn visit_str<E: de::Error>(self, value: &str) -> Result<Self::Value, E> {
         if value.starts_with("0x") {
             match u64::from_str_radix(&value[2..], 16) {
-                Ok(x) => Ok(Hash40{value: x}),
-                Err(y) => Err(E::custom(y))
+                Ok(x) => Ok(Hash40 { value: x }),
+                Err(y) => Err(E::custom(y)),
             }
         } else {
             Ok(to_hash40(value))
