@@ -1,0 +1,14 @@
+---
+#default action: override instead of replace
+doc:
+  list:
+    *: #operates on everything
+      flags:
+        action: #not sure about this one
+          op: "|"
+          value: 0x4
+    attack_11:
+      extra:
+        xlu_start: 1
+        xlu_end: 10
+        cancel_frame: 1

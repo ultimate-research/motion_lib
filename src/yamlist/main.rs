@@ -6,11 +6,28 @@ use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 
+enum Mode {
+    None,
+    Disasm {
+        file: String,
+    },
+    Asm {
+        file: String,
+    },
+    Patch {
+        file: String,
+        patch: String,
+    },
+    Compare {
+        a: String,
+        b: String,
+    },
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let len = args.len();
-    let mut mode = 0;
-    let mut filename = String::default();
+    let mut mode = Mode::None;
     let mut labelname = String::default();
     let mut outname = String::default();
 
@@ -19,86 +36,148 @@ fn main() {
         return;
     }
 
-    let mut i = 1;
-    while i < len {
-        match args[i].as_ref() {
-            "-h" => print_help_text(),
-            "-d" => mode = 1,
-            "-a" => mode = 2,
-            "-l" => {
-                i += 1;
-                if i < len {
-                    labelname = String::from(&args[i]);
-                } else {
-                    println!("missing 'file' arg for label");
-                }
-            }
-            "-o" => {
-                i += 1;
-                if i < len {
-                    outname = String::from(&args[i]);
-                } else {
-                    println!("missing 'file' arg for output name");
-                }
-            }
-            _ => filename = String::from(&args[i]),
+    let argIndex: usize;
+    match args[1].as_ref() {
+        "-h" => {
+            print_help_text();
+            return;
         }
-        i += 1;
+        "-d" => {
+            if len > 2 {
+                mode = Mode::Disasm {
+                    file: String::from(&args[2])
+                };
+            } else {
+                println!("missing 'FILE' arg for disassembly");
+                return;
+            }
+            argIndex = 3;
+        }
+        "-a" => {
+            if len > 2 {
+                mode = Mode::Asm {
+                    file: String::from(&args[2])
+                }
+            } else {
+                println!("missing 'FILE' arg for assembly");
+                return;
+            }
+            argIndex = 3;
+        }
+        "-p" => {
+            if len > 3 {
+                mode = Mode::Patch {
+                    file: String::from(&args[2]),
+                    patch: String::from(&args[3])
+                }
+            } else {
+                println!("missing 'FILE' or 'PATCH' arg for patching");
+                return;
+            }
+            argIndex = 4;
+        }
+        "-c" => {
+            if len > 3 {
+                mode = Mode::Compare {
+                    a: String::from(&args[2]),
+                    b: String::from(&args[3])
+                }
+            } else {
+                println!("missing 'A' or 'B' arg for comparison");
+                return;
+            }
+            argIndex = 4;
+        }/*
+        "-l" => {
+            if len > 2 {
+                labelname = String::from(&args[i]);
+            } else {
+                println!("missing 'file' arg for label");
+            }
+        }
+        "-o" => {
+            i += 1;
+            if i < len {
+                outname = String::from(&args[i]);
+            } else {
+                println!("missing 'file' arg for output name");
+            }
+        }*/
+        _ => {
+            println!("Unrecognized mode {}", &args[1]);
+            return;
+        },
     }
-    if filename.len() == 0 {
-        println!("missing 'file' in args");
-    } else if mode == 0 {
-        println!("missing '-d' or '-a' mode in args");
-    } else if mode == 1 {
-        if labelname.len() > 0 {
-            if let Err(e) = motion_lib::hash40::load_labels(&labelname) {
-                println!("Error loading labels: {}", e);
+
+    while argIndex < len {
+        match args[argIndex].as_ref() {
+            "-l" => {}
+            "-o" => {
+                argIndex += 1;
+
+            },
+        }
+        argIndex += 1;
+    }
+
+    if labelname.len() > 0 {
+        if let Err(e) = motion_lib::hash40::load_labels(&labelname) {
+            println!("Error loading labels: {}", e);
+        }
+    }
+
+    match mode {
+        Mode::Disasm {file} => {
+            let o = if outname.len() > 0 {
+                &outname
+            } else {
+                "out.yml"
+            };
+
+            match convert_to_yaml(&file, o) {
+                Ok(_) => {}
+                Err(y) => {
+                    let e: &Error = y.borrow();
+                    println!("ERROR: {}", e);
+                }
             }
         }
+        Mode::Asm {file} => {
+            let o = if outname.len() > 0 {
+                &outname
+            } else {
+                "out.bin"
+            };
 
-        let o = if outname.len() > 0 {
-            &outname
-        } else {
-            "out.yml"
-        };
-
-        match convert_to_yaml(&filename, o) {
-            Ok(_) => {}
-            Err(y) => {
-                let e: &Error = y.borrow();
-                println!("ERROR: {}", e);
+            match convert_to_bin(&file, o) {
+                Ok(_) => {}
+                Err(y) => {
+                    let e: &Error = y.borrow();
+                    println!("ERROR: {}", e);
+                }
             }
         }
-    } else if mode == 2 {
-        if labelname.len() > 0 {
-            if let Err(e) = motion_lib::hash40::load_labels(&labelname) {
-                println!("Error loading labels: {}", e);
-            }
-        }
+        Mode::Patch {file, patch} => {
 
-        let o = if outname.len() > 0 {
-            &outname
-        } else {
-            "out.bin"
-        };
-
-        match convert_to_bin(&filename, o) {
-            Ok(_) => {}
-            Err(y) => {
-                let e: &Error = y.borrow();
-                println!("ERROR: {}", e);
-            }
         }
+        Mode::Compare {a, b} => {
+
+        },
+        None => {}
     }
 }
 
 fn print_help_text() {
-    println!("Args: [file] [-d or -a] [other]");
-    println!("  -h (help text)    = print this help text");
-    println!("  -d (disassemble)  = convert to readable YAML");
-    println!("  -a (assemble)     = convert to binary");
-    println!("  -l (label) <file> = load labels");
-    println!("  -o (out)   <file> = set output name");
+    println!("Args: [MODE] [OTHER]");
+    println!("MODE:");
+    println!("  -h (print help)");
+    println!("  -d (disassemble) <FILE>");
+    println!("  -a (assemble)    <FILE>");
+    println!("  -p (patch)       <FILE> <PATCH>");
+    println!("  -c (compare)     <A> <B>");
+    println!("OTHER:");
+    println!("  -l (label)       <LABEL_FILE>");
+    println!("  -o (out)         <OUTPUT>");
 }
 
 fn convert_to_yaml(i: &str, o: &str) -> Result<(), Box<Error>> {

@@ -14,7 +14,7 @@ pub fn disassemble(cursor: &mut Cursor<Vec<u8>>) -> Result<MList, Error> {
     }
     let id = cursor.read_hash40::<LittleEndian>()?;
     let count = cursor.read_u64::<LittleEndian>()?;
-    let mut motion_list = IndexMap::<Hash40, Motion>::new();
+    let mut motion_list = IndexMap::<Hash40, Motion>::with_capacity(count as usize);
 
     for _ in 0..count {
         let motion_kind = cursor.read_hash40::<LittleEndian>()?;
