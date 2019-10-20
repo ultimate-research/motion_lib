@@ -7,7 +7,6 @@ use std::fs::File;
 use std::io::prelude::*;
 
 enum Mode {
-    None,
     Disasm {
         file: String,
     },
@@ -27,7 +26,7 @@ enum Mode {
 fn main() {
     let args: Vec<String> = env::args().collect();
     let len = args.len();
-    let mut mode = Mode::None;
+    let mode: Mode;
     let mut labelname = String::default();
     let mut outname = String::default();
 
@@ -36,7 +35,7 @@ fn main() {
         return;
     }
 
-    let argIndex: usize;
+    let mut arg_index: usize;
     match args[1].as_ref() {
         "-h" => {
             print_help_text();
@@ -51,7 +50,7 @@ fn main() {
                 println!("missing 'FILE' arg for disassembly");
                 return;
             }
-            argIndex = 3;
+            arg_index = 3;
         }
         "-a" => {
             if len > 2 {
@@ -62,7 +61,7 @@ fn main() {
                 println!("missing 'FILE' arg for assembly");
                 return;
             }
-            argIndex = 3;
+            arg_index = 3;
         }
         "-p" => {
             if len > 3 {
@@ -74,7 +73,7 @@ fn main() {
                 println!("missing 'FILE' or 'PATCH' arg for patching");
                 return;
             }
-            argIndex = 4;
+            arg_index = 4;
         }
         "-c" => {
             if len > 3 {
@@ -86,38 +85,37 @@ fn main() {
                 println!("missing 'A' or 'B' arg for comparison");
                 return;
             }
-            argIndex = 4;
-        }/*
-        "-l" => {
-            if len > 2 {
-                labelname = String::from(&args[i]);
-            } else {
-                println!("missing 'file' arg for label");
-            }
+            arg_index = 4;
         }
-        "-o" => {
-            i += 1;
-            if i < len {
-                outname = String::from(&args[i]);
-            } else {
-                println!("missing 'file' arg for output name");
-            }
-        }*/
         _ => {
-            println!("Unrecognized mode {}", &args[1]);
+            println!("Unrecognized mode: '{}'", &args[1]);
             return;
         },
     }
 
-    while argIndex < len {
-        match args[argIndex].as_ref() {
-            "-l" => {}
+    while arg_index < len {
+        match args[arg_index].as_ref() {
+            "-l" => {
+                arg_index += 1;
+                if arg_index < len {
+                    labelname = String::from(&args[arg_index]);
+                } else {
+                    println!("missing 'FILE' arg for labels");
+                }
+            }
             "-o" => {
-                argIndex += 1;
-
+                arg_index += 1;
+                if arg_index < len {
+                    outname = String::from(&args[arg_index]);
+                } else {
+                    println!("missing 'OUTNAME' arg for output name");
+                }
             },
+            _ => {
+
+            }
         }
-        argIndex += 1;
+        arg_index += 1;
     }
 
     if labelname.len() > 0 {
@@ -162,8 +160,7 @@ fn main() {
         }
         Mode::Compare {a, b} => {
 
-        },
-        None => {}
+        }
     }
 }
 
@@ -176,8 +173,8 @@ fn print_help_text() {
     println!("  -p (patch)       <FILE> <PATCH>");
     println!("  -c (compare)     <A> <B>");
     println!("OTHER:");
-    println!("  -l (label)       <LABEL_FILE>");
-    println!("  -o (out)         <OUTPUT>");
+    println!("  -l (label)       <FILE>");
+    println!("  -o (out)         <OUTNAME>");
 }
 
 fn convert_to_yaml(i: &str, o: &str) -> Result<(), Box<Error>> {
