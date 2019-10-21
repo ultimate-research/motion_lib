@@ -27,10 +27,10 @@ pub fn assemble(cursor: &mut Cursor<Vec<u8>>, mlist: &MList) -> Result<(), Error
 fn write_motion(cursor: &mut Cursor<Vec<u8>>, motion: &Motion) -> Result<(), Error> {
     let anm_cnt = motion.animations.len();
     if anm_cnt > 3 {
-        return Err(Error::new(
+        Err(Error::new(
             ErrorKind::InvalidData,
             "Animation count cannot exceed 3",
-        ));
+        ))?;
     }
 
     cursor.write_hash40::<LittleEndian>(&motion.game_script)?;
@@ -39,7 +39,7 @@ fn write_motion(cursor: &mut Cursor<Vec<u8>>, motion: &Motion) -> Result<(), Err
     cursor.write_u8(anm_cnt as u8)?;
 
     let temp = (motion.scripts.len() * 8) as u32;
-    let size = temp + (if let Some(_) = &motion.extra { 4 } else { 0 });
+    let size = temp + (motion.extra.is_some() as u32) * 4;
     cursor.write_u32::<LittleEndian>(size)?;
 
     for i in motion.animations.iter() {
@@ -49,7 +49,9 @@ fn write_motion(cursor: &mut Cursor<Vec<u8>>, motion: &Motion) -> Result<(), Err
         cursor.write_u8(i.unk)?;
     }
     //align
-    cursor.set_position((cursor.position() + 3 >> 2) << 2);
+    const ALIGN: u64 = 4;
+    const ALIGN_MASK: u64 = ALIGN - 1;
+    cursor.set_position((cursor.position() + ALIGN_MASK) & !ALIGN_MASK);
 
     for script in motion.scripts.iter() {
         cursor.write_hash40::<LittleEndian>(&script)?;
@@ -59,7 +61,7 @@ fn write_motion(cursor: &mut Cursor<Vec<u8>>, motion: &Motion) -> Result<(), Err
         cursor.write_u8(x.xlu_start)?;
         cursor.write_u8(x.xlu_end)?;
         cursor.write_u8(x.cancel_frame)?;
-        cursor.write_u8(if x.no_stop_intp { 1 } else { 0 })?;
+        cursor.write_u8(x.no_stop_intp as u8)?;
     }
 
     Ok(())

@@ -3,9 +3,7 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize, Serializer};
 
 // "motion"
-pub const MAGIC: Hash40 = Hash40 {
-    value: 0x06f5fea1e8,
-};
+pub const MAGIC: Hash40 = Hash40(0x06f5fea1e8);
 
 //TODO: overuse of public attributes? Create .new method instead?
 #[derive(Debug, Clone, Serialize, Deserialize)]

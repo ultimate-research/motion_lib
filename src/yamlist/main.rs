@@ -118,7 +118,7 @@ fn main() {
         arg_index += 1;
     }
 
-    if labelname.len() > 0 {
+    if !labelname.is_empty() {
         if let Err(e) = motion_lib::hash40::load_labels(&labelname) {
             println!("Error loading labels: {}", e);
         }
@@ -126,7 +126,7 @@ fn main() {
 
     match mode {
         Mode::Disasm {file} => {
-            let o = if outname.len() > 0 {
+            let o = if !outname.is_empty() {
                 &outname
             } else {
                 "out.yml"
@@ -135,13 +135,13 @@ fn main() {
             match convert_to_yaml(&file, o) {
                 Ok(_) => {}
                 Err(y) => {
-                    let e: &Error = y.borrow();
+                    let e: &dyn Error = y.borrow();
                     println!("ERROR: {}", e);
                 }
             }
         }
         Mode::Asm {file} => {
-            let o = if outname.len() > 0 {
+            let o = if !outname.is_empty() {
                 &outname
             } else {
                 "out.bin"
@@ -150,16 +150,16 @@ fn main() {
             match convert_to_bin(&file, o) {
                 Ok(_) => {}
                 Err(y) => {
-                    let e: &Error = y.borrow();
+                    let e: &dyn Error = y.borrow();
                     println!("ERROR: {}", e);
                 }
             }
         }
-        Mode::Patch {file, patch} => {
-
+        Mode::Patch {..} => {
+            unimplemented!()
         }
-        Mode::Compare {a, b} => {
-
+        Mode::Compare {..} => {
+            unimplemented!()
         }
     }
 }
@@ -177,7 +177,7 @@ fn print_help_text() {
     println!("  -o (out)         <OUTNAME>");
 }
 
-fn convert_to_yaml(i: &str, o: &str) -> Result<(), Box<Error>> {
+fn convert_to_yaml(i: &str, o: &str) -> Result<(), Box<dyn Error>> {
     match motion_lib::open(i) {
         Ok(x) => {
             let mut f = File::create(o)?;
@@ -189,12 +189,12 @@ fn convert_to_yaml(i: &str, o: &str) -> Result<(), Box<Error>> {
     }
 }
 
-fn convert_to_bin(i: &str, o: &str) -> Result<(), Box<Error>> {
-    let mut f = File::open(i)?;
-    let mut s: String = String::default();
-    f.read_to_string(&mut s)?;
-    match from_str::<motion_lib::mlist::MList>(&s) {
-        Ok(x) => match motion_lib::save(o, &x) {
+fn convert_to_bin(in_path: &str, out_path: &str) -> Result<(), Box<dyn Error>> {
+    let mut file = File::open(in_path)?;
+    let mut contents: String = String::default();
+    file.read_to_string(&mut contents)?;
+    match from_str(&contents) {
+        Ok(mlist) => match motion_lib::save(out_path, &mlist) {
             Ok(_) => Ok(()),
             Err(y) => Err(Box::new(y)),
         },

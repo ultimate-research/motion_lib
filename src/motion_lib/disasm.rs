@@ -29,37 +29,36 @@ pub fn disassemble(cursor: &mut Cursor<Vec<u8>>) -> Result<MList, Error> {
 }
 
 fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
-    let game = cursor.read_hash40::<LittleEndian>()?;
+    let game_script = cursor.read_hash40::<LittleEndian>()?;
     let flags = cursor.read_u16::<LittleEndian>()?;
-    let frames = cursor.read_u8()?;
+    let transition = cursor.read_u8()?;
     let anm_cnt = cursor.read_u8()?;
     if anm_cnt > 3 {
-        return Err(Error::new(
+        Err(Error::new(
             ErrorKind::InvalidData,
             "Animation count cannot exceed 3",
-        ));
+        ))?;
     }
     let size = cursor.read_u32::<LittleEndian>()?;
 
-    let mut anims = Vec::<Animation>::with_capacity(anm_cnt as usize);
-    for _ in 0..anm_cnt {
-        anims.push(Animation {
-            name: cursor.read_hash40::<LittleEndian>()?,
-            unk: 0,
-        });
-    }
-    for i in 0..anm_cnt {
-        anims[i as usize].unk = cursor.read_u8()?
-    }
+    let animations = (0..anm_cnt)
+        .map(|_| cursor.read_hash40::<LittleEndian>())
+        .collect::<Result<Vec<_>, Error>>()?
+        .iter()
+        .map(|name| Ok(Animation {
+            name: *name,
+            unk: cursor.read_u8()?
+        }))
+        .collect::<Result<Vec<_>, Error>>()?;
 
     //align by 4
-    cursor.set_position((cursor.position() + 3 >> 2) << 2);
+    const ALIGN: u64 = 4;
+    const ALIGN_MASK: u64 = ALIGN - 1;
+    cursor.set_position((cursor.position() + ALIGN_MASK) & !ALIGN_MASK);
 
-    let count = size / 8;
-    let mut scripts = Vec::<Hash40>::with_capacity(count as usize);
-    for _ in 0..count {
-        scripts.push(cursor.read_hash40::<LittleEndian>()?);
-    }
+    let scripts = (0..size / 8)
+        .map(|_| cursor.read_hash40::<LittleEndian>())
+        .collect::<Result<Vec<_>, Error>>()?;
 
     let extra: Option<Extra> = if size % 8 == 4 {
         Some(Extra {
@@ -73,11 +72,11 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
     };
 
     Ok(Motion {
-        game_script: game,
-        flags: flags,
-        transition: frames,
-        animations: anims,
-        scripts: scripts,
-        extra: extra,
+        game_script,
+        flags,
+        transition,
+        animations,
+        scripts,
+        extra,
     })
 }

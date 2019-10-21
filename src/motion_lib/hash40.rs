@@ -35,20 +35,18 @@ pub fn load_labels(file: &str) -> Result<(), Error> {
     }
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Hash40 {
-    pub value: u64,
-}
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Hash40(pub u64);
 
 impl Hash40 {
     #[inline]
     pub fn crc(&self) -> u32 {
-        self.value as u32
+        self.0 as u32
     }
 
     #[inline]
     pub fn len(&self) -> u8 {
-        (self.value >> 32) as u8
+        (self.0 >> 32) as u8
     }
 
     pub fn to_label(&self) -> String {
@@ -69,7 +67,7 @@ pub trait ReadHash40: ReadBytesExt {
 impl<R: Read> ReadHash40 for R {
     fn read_hash40<T: ByteOrder>(&mut self) -> Result<Hash40, Error> {
         match self.read_u64::<T>() {
-            Ok(x) => Ok(Hash40 { value: x }),
+            Ok(x) => Ok(Hash40(x)),
             Err(y) => Err(y),
         }
     }
@@ -81,14 +79,14 @@ pub trait WriteHash40: WriteBytesExt {
 }
 impl<W: Write> WriteHash40 for W {
     fn write_hash40<T: ByteOrder>(&mut self, hash: &Hash40) -> Result<(), Error> {
-        self.write_u64::<T>(hash.value)
+        self.write_u64::<T>(hash.0)
     }
 }
 
 // Hash40 -> string
 impl ToString for Hash40 {
     fn to_string(&self) -> String {
-        format!("0x{:010x}", self.value)
+        format!("0x{:010x}", self.0)
     }
 }
 
@@ -109,7 +107,7 @@ impl<'de> de::Visitor<'de> for Hash40Visitor {
     fn visit_str<E: de::Error>(self, value: &str) -> Result<Self::Value, E> {
         if value.starts_with("0x") {
             match u64::from_str_radix(&value[2..], 16) {
-                Ok(x) => Ok(Hash40 { value: x }),
+                Ok(x) => Ok(Hash40(x)),
                 Err(y) => Err(E::custom(y)),
             }
         } else {
@@ -132,9 +130,7 @@ impl<'de> Deserialize<'de> for Hash40 {
 
 //exposed function to compute a hash
 pub fn to_hash40(word: &str) -> Hash40 {
-    Hash40 {
-        value: crc32_with_len(word),
-    }
+    Hash40(crc32_with_len(word))
 }
 
 fn crc32_with_len(word: &str) -> u64 {

@@ -1,5 +1,6 @@
 mod asm;
 mod disasm;
+#[allow(clippy::all)]
 pub mod hash40;
 pub mod mlist;
 
@@ -18,12 +19,12 @@ pub fn open<P: AsRef<Path>>(file: P) -> Result<MList, Error> {
     }
 }
 
-pub fn save<P: AsRef<Path>>(file: P, mlist: &MList) -> Result<(), Error> {
-    match File::create(file) {
-        Ok(mut x) => {
+pub fn save<P: AsRef<Path>>(path: P, mlist: &MList) -> Result<(), Error> {
+    match File::create(path) {
+        Ok(mut file) => {
             let mut cursor = Cursor::new(Vec::<u8>::new());
             asm::assemble(&mut cursor, mlist)?;
-            x.write_all(&cursor.into_inner())?;
+            file.write_all(&cursor.into_inner())?;
             Ok(())
         }
         Err(y) => Err(y),
