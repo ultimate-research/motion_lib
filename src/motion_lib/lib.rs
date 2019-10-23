@@ -13,20 +13,13 @@ use std::io::{prelude::*, Cursor, Error};
 use std::path::Path;
 
 pub fn open<P: AsRef<Path>>(file: P) -> Result<MList, Error> {
-    match read(file) {
-        Ok(x) => disasm::disassemble(&mut Cursor::new(x)),
-        Err(y) => Err(y),
-    }
+    disasm::disassemble(&mut Cursor::new(read(file)?))
 }
 
 pub fn save<P: AsRef<Path>>(path: P, mlist: &MList) -> Result<(), Error> {
-    match File::create(path) {
-        Ok(mut file) => {
-            let mut cursor = Cursor::new(Vec::<u8>::new());
-            asm::assemble(&mut cursor, mlist)?;
-            file.write_all(&cursor.into_inner())?;
-            Ok(())
-        }
-        Err(y) => Err(y),
-    }
+    let mut file = File::create(path)?;
+    let mut cursor = Cursor::new(Vec::<u8>::new());
+    asm::assemble(&mut cursor, mlist)?;
+    file.write_all(&cursor.into_inner())?;
+    Ok(())
 }
