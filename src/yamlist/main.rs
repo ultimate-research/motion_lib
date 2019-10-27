@@ -15,18 +15,19 @@ type Result<T> = std::result::Result<T, ErrorMessage>;
 fn main() {
     let args = Args::from_args();
 
-    if let Some(ref label_path) = args.get_label() {
+    if let Some(ref label_path) = args.label {
         if let Err(e) = motion_lib::hash40::load_labels(label_path) {
             println!("Error loading labels: {}", e);
+            return;
         }
     }
 
     if let Err(y) = match &args.mode {
         Mode::Disasm {file, ..} => {
-            convert_to_yaml(&file, &args.get_outfile())
+            convert_to_yaml(&file, &args.out.as_ref().map_or("out.yml", String::as_str))
         }
         Mode::Asm {file, ..} => {
-            convert_to_bin(&file, &args.get_outfile())
+            convert_to_bin(&file, &args.out.as_ref().map_or("out.bin", String::as_str))
         }
         Mode::Patch {..} => {
             patch_motion_bin()
