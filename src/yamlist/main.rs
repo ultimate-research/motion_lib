@@ -1,203 +1,69 @@
 use motion_lib;
 use serde_yaml::{from_str, to_string};
-use std::borrow::Borrow;
-use std::env;
-use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 
-enum Mode {
-    Disasm {
-        file: String,
-    },
-    Asm {
-        file: String,
-    },
-    Patch {
-        file: String,
-        patch: String,
-    },
-    Compare {
-        a: String,
-        b: String,
-    },
-}
+mod args;
+use args::{Args, Mode};
+use structopt::StructOpt;
+
+mod error;
+use error::{ErrorMessage, ErrorString};
+
+type Result<T> = std::result::Result<T, ErrorMessage>;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let len = args.len();
-    let mode: Mode;
-    let mut labelname = String::default();
-    let mut outname = String::default();
+    let args = Args::from_args();
 
-    if len <= 1 {
-        print_help_text();
-        return;
-    }
-
-    let mut arg_index: usize;
-    match args[1].as_ref() {
-        "-h" => {
-            print_help_text();
-            return;
-        }
-        "-d" => {
-            if len > 2 {
-                mode = Mode::Disasm {
-                    file: String::from(&args[2])
-                };
-            } else {
-                println!("missing 'FILE' arg for disassembly");
-                return;
-            }
-            arg_index = 3;
-        }
-        "-a" => {
-            if len > 2 {
-                mode = Mode::Asm {
-                    file: String::from(&args[2])
-                }
-            } else {
-                println!("missing 'FILE' arg for assembly");
-                return;
-            }
-            arg_index = 3;
-        }
-        "-p" => {
-            if len > 3 {
-                mode = Mode::Patch {
-                    file: String::from(&args[2]),
-                    patch: String::from(&args[3])
-                }
-            } else {
-                println!("missing 'FILE' or 'PATCH' arg for patching");
-                return;
-            }
-            arg_index = 4;
-        }
-        "-c" => {
-            if len > 3 {
-                mode = Mode::Compare {
-                    a: String::from(&args[2]),
-                    b: String::from(&args[3])
-                }
-            } else {
-                println!("missing 'A' or 'B' arg for comparison");
-                return;
-            }
-            arg_index = 4;
-        }
-        _ => {
-            println!("Unrecognized mode: '{}'", &args[1]);
-            return;
-        },
-    }
-
-    while arg_index < len {
-        match args[arg_index].as_ref() {
-            "-l" => {
-                arg_index += 1;
-                if arg_index < len {
-                    labelname = String::from(&args[arg_index]);
-                } else {
-                    println!("missing 'FILE' arg for labels");
-                }
-            }
-            "-o" => {
-                arg_index += 1;
-                if arg_index < len {
-                    outname = String::from(&args[arg_index]);
-                } else {
-                    println!("missing 'OUTNAME' arg for output name");
-                }
-            },
-            _ => {
-
-            }
-        }
-        arg_index += 1;
-    }
-
-    if !labelname.is_empty() {
-        if let Err(e) = motion_lib::hash40::load_labels(&labelname) {
+    if let Some(ref label_path) = args.label {
+        if let Err(e) = motion_lib::hash40::load_labels(label_path) {
             println!("Error loading labels: {}", e);
+            return;
         }
     }
 
-    match mode {
-        Mode::Disasm {file} => {
-            let o = if !outname.is_empty() {
-                &outname
-            } else {
-                "out.yml"
-            };
-
-            match convert_to_yaml(&file, o) {
-                Ok(_) => {}
-                Err(y) => {
-                    let e: &dyn Error = y.borrow();
-                    println!("ERROR: {}", e);
-                }
-            }
+    if let Err(y) = match &args.mode {
+        Mode::Disasm {file, ..} => {
+            convert_to_yaml(&file, &args.out.as_ref().map_or("out.yml", String::as_str))
         }
-        Mode::Asm {file} => {
-            let o = if !outname.is_empty() {
-                &outname
-            } else {
-                "out.bin"
-            };
-
-            match convert_to_bin(&file, o) {
-                Ok(_) => {}
-                Err(y) => {
-                    let e: &dyn Error = y.borrow();
-                    println!("ERROR: {}", e);
-                }
-            }
+        Mode::Asm {file, ..} => {
+            convert_to_bin(&file, &args.out.as_ref().map_or("out.bin", String::as_str))
         }
         Mode::Patch {..} => {
-            unimplemented!()
+            patch_motion_bin()
         }
-        Mode::Compare {..} => {
-            unimplemented!()
+        Mode::Diff {..} => {
+            diff_files()
         }
+    } {
+        println!("ERROR: {}", y);
     }
 }
 
-fn print_help_text() {
-    println!("Args: [MODE] [OTHER]");
-    println!("MODE:");
-    println!("  -h (print help)");
-    println!("  -d (disassemble) <FILE>");
-    println!("  -a (assemble)    <FILE>");
-    println!("  -p (patch)       <FILE> <PATCH>");
-    println!("  -c (compare)     <A> <B>");
-    println!("OTHER:");
-    println!("  -l (label)       <FILE>");
-    println!("  -o (out)         <OUTNAME>");
+// TODO: args/implementation
+fn patch_motion_bin() -> Result<()> {
+    Err(ErrorString("Patching not supported"))?
 }
 
-fn convert_to_yaml(i: &str, o: &str) -> Result<(), Box<dyn Error>> {
-    match motion_lib::open(i) {
-        Ok(x) => {
-            let mut f = File::create(o)?;
-            let pretty = to_string(&x)?;
-            f.write_all(pretty.as_bytes())?;
-            Ok(())
-        }
-        Err(y) => Err(Box::new(y)),
-    }
+// TODO: args/implementation
+fn diff_files() -> Result<()> {
+    Err(ErrorString("Diffing not supported"))?
 }
 
-fn convert_to_bin(in_path: &str, out_path: &str) -> Result<(), Box<dyn Error>> {
+fn convert_to_yaml(in_path: &str, out_path: &str) -> Result<()> {
+    let x = motion_lib::open(in_path)?;
+    let mut f = File::create(out_path)?;
+    let pretty = to_string(&x)?;
+    f.write_all(pretty.as_bytes())?;
+    Ok(())
+}
+
+fn convert_to_bin(in_path: &str, out_path: &str) -> Result<()> {
     let mut file = File::open(in_path)?;
     let mut contents: String = String::default();
     file.read_to_string(&mut contents)?;
-    match from_str(&contents) {
-        Ok(mlist) => match motion_lib::save(out_path, &mlist) {
-            Ok(_) => Ok(()),
-            Err(y) => Err(Box::new(y)),
-        },
-        Err(y) => Err(Box::new(y)),
-    }
+    
+    let mlist = from_str(&contents)?;
+    motion_lib::save(out_path, &mlist)?;
+    Ok(())
 }
