@@ -8,7 +8,7 @@ use args::{Args, Mode};
 use structopt::StructOpt;
 
 mod error;
-use error::ErrorMessage;
+use error::{ErrorMessage, ErrorString};
 
 type Result<T> = std::result::Result<T, ErrorMessage>;
 
@@ -29,14 +29,24 @@ fn main() {
             convert_to_bin(&file, &args.get_outfile())
         }
         Mode::Patch {..} => {
-            unimplemented!()
+            patch_motion_bin()
         }
         Mode::Diff {..} => {
-            unimplemented!()
+            diff_files()
         }
     } {
         println!("ERROR: {}", y);
     }
+}
+
+// TODO: args/implementation
+fn patch_motion_bin() -> Result<()> {
+    Err(ErrorString("Patching not supported"))?
+}
+
+// TODO: args/implementation
+fn diff_files() -> Result<()> {
+    Err(ErrorString("Diffing not supported"))?
 }
 
 fn convert_to_yaml(in_path: &str, out_path: &str) -> Result<()> {
