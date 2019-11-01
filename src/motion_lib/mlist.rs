@@ -1,4 +1,4 @@
-use crate::hash40::*;
+use hash40::*;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize, Serializer};
 

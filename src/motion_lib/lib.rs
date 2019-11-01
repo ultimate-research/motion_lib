@@ -1,11 +1,7 @@
 mod asm;
 mod disasm;
 #[allow(clippy::all)]
-pub mod hash40;
 pub mod mlist;
-
-#[macro_use]
-extern crate lazy_static;
 
 use mlist::MList;
 use std::fs::{read, File};

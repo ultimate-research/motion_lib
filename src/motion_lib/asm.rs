@@ -1,6 +1,6 @@
-use crate::hash40::*;
 use crate::mlist::*;
 use byteorder::{LittleEndian, WriteBytesExt};
+use hash40::*;
 use std::io::{Cursor, Error, ErrorKind};
 
 pub fn assemble(cursor: &mut Cursor<Vec<u8>>, mlist: &MList) -> Result<(), Error> {

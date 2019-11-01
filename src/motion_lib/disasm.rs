@@ -1,6 +1,6 @@
-use crate::hash40::*;
 use crate::mlist::*;
 use byteorder::{LittleEndian, ReadBytesExt};
+use hash40::*;
 use indexmap::IndexMap;
 use std::io::{Cursor, Error, ErrorKind};
 
