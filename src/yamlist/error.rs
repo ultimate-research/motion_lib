@@ -18,7 +18,7 @@ impl From<ErrorString> for ErrorMessage
 {
     fn from(error: ErrorString) -> Self {
         Self {
-            msg: format!("{}", error.0)
+            msg: error.0.to_string()
         }
     }
 }

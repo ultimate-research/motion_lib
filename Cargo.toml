@@ -19,4 +19,4 @@ serde_yaml = "0.8"
 indexmap = { version = "1.2.0", features = ["serde-1"] }
 lazy_static = "1.4.0"
 structopt = "0.3.3"
-hash40 = "0.1.0"
+hash40 = "0.2.0"

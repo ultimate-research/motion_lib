@@ -2,13 +2,12 @@ use hash40::*;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize, Serializer};
 
-// "motion"
-pub const MAGIC: Hash40 = Hash40(0x06f5fea1e8);
+pub const MAGIC: Hash40 = hash40!("motion");
 
 //TODO: overuse of public attributes? Create .new method instead?
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MList {
-    pub id_hash: Hash40,
+    pub motion_path: Hash40,
     pub list: IndexMap<Hash40, Motion>,
 }
 

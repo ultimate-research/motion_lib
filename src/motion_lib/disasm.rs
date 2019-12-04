@@ -23,7 +23,7 @@ pub fn disassemble(cursor: &mut Cursor<Vec<u8>>) -> Result<MList, Error> {
     }
 
     Ok(MList {
-        id_hash: id,
+        motion_path: id,
         list: motion_list,
     })
 }
@@ -34,10 +34,10 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
     let transition = cursor.read_u8()?;
     let anm_cnt = cursor.read_u8()?;
     if anm_cnt > 3 {
-        Err(Error::new(
+        return Err(Error::new(
             ErrorKind::InvalidData,
             "Animation count cannot exceed 3",
-        ))?;
+        ));
     }
     let size = cursor.read_u32::<LittleEndian>()?;
 

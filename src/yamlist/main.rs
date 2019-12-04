@@ -43,12 +43,12 @@ fn main() {
 
 // TODO: args/implementation
 fn patch_motion_bin() -> Result<()> {
-    Err(ErrorString("Patching not supported"))?
+    Err(ErrorString("Patching not supported").into())
 }
 
 // TODO: args/implementation
 fn diff_files() -> Result<()> {
-    Err(ErrorString("Diffing not supported"))?
+    Err(ErrorString("Diffing not supported").into())
 }
 
 fn convert_to_yaml(in_path: &str, out_path: &str) -> Result<()> {
