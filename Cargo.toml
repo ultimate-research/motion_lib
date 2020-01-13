@@ -1,5 +1,8 @@
 [package]
 name = "motion_list_rs"
+description = "Library for working with motion_list.bin files in Smash Ultimate"
+repository = "https://github.com/ultimate-research/motion_lib"
+license = "MIT"
 version = "1.1.0"
 authors = ["BenHall-7 <benjaminjahall@gmail.com>"]
 edition = "2018"
