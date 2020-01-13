@@ -1,4 +1,4 @@
-use hash40::load_labels;
+use hash40::{read_labels, set_labels};
 use motion_lib;
 use serde_yaml::{from_str, to_string};
 use std::fs::File;
@@ -17,9 +17,9 @@ fn main() {
     let args = Args::from_args();
 
     if let Some(ref label_path) = args.label {
-        if let Err(e) = load_labels(label_path) {
-            println!("Error loading labels: {}", e);
-            return;
+        match read_labels(label_path) {
+            Ok(labels) => set_labels(labels),
+            Err(e) => println!("Error loading labels: {}", e),
         }
     }
 
