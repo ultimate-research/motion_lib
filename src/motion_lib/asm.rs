@@ -15,7 +15,7 @@ pub fn assemble(cursor: &mut Cursor<Vec<u8>>, mlist: &MList) -> Result<(), Error
             Err(y) => {
                 return Err(Error::new(
                     ErrorKind::Other,
-                    format!("ERROR in motion kind {}: {}", motion.0.to_label(), y),
+                    format!("ERROR in motion kind {}: {}", motion.0, y),
                 ))
             }
         }

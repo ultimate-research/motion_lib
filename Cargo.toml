@@ -3,7 +3,7 @@ name = "motion_list_rs"
 description = "Library for working with motion_list.bin files in Smash Ultimate"
 repository = "https://github.com/ultimate-research/motion_lib"
 license = "MIT"
-version = "1.1.0"
+version = "1.2.0"
 authors = ["BenHall-7 <benjaminjahall@gmail.com>"]
 edition = "2018"
 
@@ -22,4 +22,4 @@ serde_yaml = "^0.8"
 indexmap = { version = "^1.2", features = ["serde-1"] }
 lazy_static = "^1.4"
 structopt = "^0.3"
-hash40 = "0.3"
+hash40 = "0.4"
