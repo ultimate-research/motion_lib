@@ -4,7 +4,7 @@ use structopt::StructOpt;
 pub struct Args {
     #[structopt(subcommand)]
     pub mode: Mode,
-    
+
     #[structopt(long, short, global(true))]
     pub label: Option<String>,
 

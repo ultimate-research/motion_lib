@@ -5,20 +5,20 @@ pub struct ErrorMessage {
 pub struct ErrorString(pub &'static str);
 
 impl<E> From<E> for ErrorMessage
-    where E: std::error::Error
+where
+    E: std::error::Error,
 {
     fn from(error: E) -> Self {
         Self {
-            msg: format!("{}", error)
+            msg: format!("{}", error),
         }
     }
 }
 
-impl From<ErrorString> for ErrorMessage
-{
+impl From<ErrorString> for ErrorMessage {
     fn from(error: ErrorString) -> Self {
         Self {
-            msg: error.0.to_string()
+            msg: error.0.to_string(),
         }
     }
 }

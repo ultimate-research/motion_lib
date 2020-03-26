@@ -8,6 +8,8 @@ use std::fs::{read, File};
 use std::io::{prelude::*, Cursor, Error};
 use std::path::Path;
 
+pub use hash40;
+
 pub fn open<P: AsRef<Path>>(file: P) -> Result<MList, Error> {
     disasm::disassemble(&mut Cursor::new(read(file)?))
 }

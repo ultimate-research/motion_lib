@@ -45,10 +45,12 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
         .map(|_| cursor.read_hash40::<LittleEndian>())
         .collect::<Result<Vec<_>, Error>>()?
         .iter()
-        .map(|name| Ok(Animation {
-            name: *name,
-            unk: cursor.read_u8()?
-        }))
+        .map(|name| {
+            Ok(Animation {
+                name: *name,
+                unk: cursor.read_u8()?,
+            })
+        })
         .collect::<Result<Vec<_>, Error>>()?;
 
     //align by 4

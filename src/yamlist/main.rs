@@ -24,18 +24,14 @@ fn main() {
     }
 
     if let Err(y) = match &args.mode {
-        Mode::Disasm {file, ..} => {
+        Mode::Disasm { file, .. } => {
             convert_to_yaml(&file, &args.out.as_ref().map_or("out.yml", String::as_str))
         }
-        Mode::Asm {file, ..} => {
+        Mode::Asm { file, .. } => {
             convert_to_bin(&file, &args.out.as_ref().map_or("out.bin", String::as_str))
         }
-        Mode::Patch {..} => {
-            patch_motion_bin()
-        }
-        Mode::Diff {..} => {
-            diff_files()
-        }
+        Mode::Patch { .. } => patch_motion_bin(),
+        Mode::Diff { .. } => diff_files(),
     } {
         println!("ERROR: {}", y);
     }
@@ -63,7 +59,7 @@ fn convert_to_bin(in_path: &str, out_path: &str) -> Result<()> {
     let mut file = File::open(in_path)?;
     let mut contents: String = String::default();
     file.read_to_string(&mut contents)?;
-    
+
     let mlist = from_str(&contents)?;
     motion_lib::save(out_path, &mlist)?;
     Ok(())
