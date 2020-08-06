@@ -1,5 +1,4 @@
 use hash40::{read_labels, set_labels};
-use motion_lib;
 use serde_yaml::{from_str, to_string};
 use std::fs::File;
 use std::io::prelude::*;
