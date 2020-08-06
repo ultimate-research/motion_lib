@@ -14,7 +14,7 @@ pub struct MList {
 pub struct Motion {
     pub game_script: Hash40,
     pub flags: Flags,
-    pub transition: u8,
+    pub blend_frames: u8,
     pub animations: Vec<Animation>,
     pub scripts: Vec<Hash40>,
     pub extra: Option<Extra>,
@@ -76,13 +76,13 @@ macro_rules! make_flags {
 }
 
 make_flags!(
-    blend_after,
+    turn,
     r#loop,
     r#move,
     fix_trans,
     fix_rot,
     fix_scale,
-    blend_through,
+    unk_40,
     unk_80,
     unk_100,
     unk_200,

@@ -31,7 +31,7 @@ pub fn disassemble(cursor: &mut Cursor<Vec<u8>>) -> Result<MList, Error> {
 fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
     let game_script = cursor.read_hash40::<LittleEndian>()?;
     let flags = cursor.read_u16::<LittleEndian>()?.into();
-    let transition = cursor.read_u8()?;
+    let blend_frames = cursor.read_u8()?;
     let anm_cnt = cursor.read_u8()?;
     if anm_cnt > 3 {
         return Err(Error::new(
@@ -76,7 +76,7 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
     Ok(Motion {
         game_script,
         flags,
-        transition,
+        blend_frames,
         animations,
         scripts,
         extra,

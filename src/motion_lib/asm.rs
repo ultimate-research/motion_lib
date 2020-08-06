@@ -35,7 +35,7 @@ fn write_motion(cursor: &mut Cursor<Vec<u8>>, motion: &Motion) -> Result<(), Err
 
     cursor.write_hash40::<LittleEndian>(motion.game_script)?;
     cursor.write_u16::<LittleEndian>(motion.flags.into())?;
-    cursor.write_u8(motion.transition)?;
+    cursor.write_u8(motion.blend_frames)?;
     cursor.write_u8(anm_cnt as u8)?;
 
     let temp = (motion.scripts.len() * 8) as u32;
