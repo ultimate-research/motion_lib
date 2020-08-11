@@ -1,3 +1,4 @@
+use diff::Diff;
 use hash40::{read_labels, set_labels};
 use serde_yaml::{from_str, to_string};
 use std::fs::File;
@@ -30,7 +31,9 @@ fn main() {
             convert_to_bin(&file, &args.out.as_ref().map_or("out.bin", String::as_str))
         }
         Mode::Patch { .. } => patch_motion_bin(),
-        Mode::Diff { .. } => diff_files(),
+        Mode::Diff { a, b } => {
+            diff_files(a, b, &args.out.as_ref().map_or("diff.yml", String::as_str))
+        }
     } {
         println!("ERROR: {}", y);
     }
@@ -42,8 +45,14 @@ fn patch_motion_bin() -> Result<()> {
 }
 
 // TODO: args/implementation
-fn diff_files() -> Result<()> {
-    Err(ErrorString("Diffing not supported").into())
+fn diff_files(a: &str, b: &str, out_path: &str) -> Result<()> {
+    let a = motion_lib::open(a)?;
+    let b = motion_lib::open(b)?;
+    let diff = a.diff(&b);
+    let mut f = File::create(out_path)?;
+    let pretty = to_string(&diff)?;
+    f.write_all(pretty.as_bytes())?;
+    Ok(())
 }
 
 fn convert_to_yaml(in_path: &str, out_path: &str) -> Result<()> {

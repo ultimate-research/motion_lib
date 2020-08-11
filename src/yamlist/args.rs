@@ -29,6 +29,7 @@ pub enum Mode {
         patch: String,
     },
 
+    #[structopt(about = "Take two motion_lists, and produce a yaml file of their difference")]
     Diff {
         a: String,
         b: String,
