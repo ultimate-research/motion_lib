@@ -30,21 +30,28 @@ fn main() {
         Mode::Asm { file, .. } => {
             convert_to_bin(&file, &args.out.as_ref().map_or("out.bin", String::as_str))
         }
-        Mode::Patch { .. } => patch_motion_bin(),
         Mode::Diff { a, b } => {
             diff_files(a, b, &args.out.as_ref().map_or("diff.yml", String::as_str))
+        }
+        Mode::Patch { file, patch } => {
+            patch_motion_bin(file, patch, &args.out.as_ref().map_or("patched.bin", String::as_str))
         }
     } {
         println!("ERROR: {}", y);
     }
 }
 
-// TODO: args/implementation
-fn patch_motion_bin() -> Result<()> {
-    Err(ErrorString("Patching not supported").into())
+fn patch_motion_bin(file: &str, patch: &str, out_path: &str) -> Result<()> {
+    let a = motion_lib::open(file)?;
+    let mut contents: String = String::default();
+    File::open(patch)?.read_to_string(&mut contents)?;
+    let diff = from_str(&contents)?;
+    
+    let out = a.apply_new(&diff);
+    motion_lib::save(out_path, &out)?;
+    Ok(())
 }
 
-// TODO: args/implementation
 fn diff_files(a: &str, b: &str, out_path: &str) -> Result<()> {
     let a = motion_lib::open(a)?;
     let b = motion_lib::open(b)?;

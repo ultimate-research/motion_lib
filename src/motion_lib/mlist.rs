@@ -13,7 +13,7 @@ pub struct MList {
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, Diff)]
-#[diff(attr(#[derive(Debug, Serialize)]))]
+#[diff(attr(#[derive(Debug, Serialize, Deserialize)]))]
 pub struct Motion {
     pub game_script: Hash40,
     pub flags: Flags,
@@ -24,14 +24,14 @@ pub struct Motion {
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, Diff)]
-#[diff(attr(#[derive(Debug, PartialEq, Serialize)]))]
+#[diff(attr(#[derive(Debug, PartialEq, Serialize, Deserialize)]))]
 pub struct Animation {
     pub name: Hash40,
     pub unk: u8,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize, Diff)]
-#[diff(attr(#[derive(Debug, PartialEq, Serialize)]))]
+#[diff(attr(#[derive(Debug, PartialEq, Serialize, Deserialize)]))]
 pub struct Extra {
     pub xlu_start: u8,
     pub xlu_end: u8,
@@ -42,7 +42,7 @@ pub struct Extra {
 macro_rules! make_flags {
     ($first:ident, $($names:ident),*) => {
         #[derive(Debug, Default, PartialEq, Copy, Clone, Serialize, Deserialize, Diff)]
-        #[diff(attr(#[derive(Debug, Serialize)]))]
+        #[diff(attr(#[derive(Debug, Serialize, Deserialize)]))]
         pub struct Flags {
             pub $first: bool,
             $(pub $names: bool),*
@@ -78,7 +78,7 @@ make_flags!(
     turn, r#loop, r#move, fix_trans, fix_rot, fix_scale, unk_40, unk_80, unk_100, unk_200, unk_400
 );
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct MListDiff {
     motion_path: <Hash40 as Diff>::Repr,
     altered: IndexMap<Hash40, <Motion as Diff>::Repr>,

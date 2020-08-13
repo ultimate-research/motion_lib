@@ -17,10 +17,10 @@ path = "src/yamlist/main.rs"
 
 [dependencies]
 byteorder = "^1.3"
-diff-struct = { path = "../diff-struct" }
+diff-struct = "0.2"
 serde = { version = "^1", features = ["derive"] }
 serde_yaml = "0.8"
 indexmap = { version = "^1.2", features = ["serde-1"] }
 lazy_static = "^1.4"
 structopt = "^0.3"
-hash40 = { path = "../hash40-rs" }
+hash40 = "0.4"

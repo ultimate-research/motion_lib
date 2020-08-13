@@ -24,14 +24,15 @@ pub enum Mode {
         file: String,
     },
 
-    Patch {
-        file: String,
-        patch: String,
-    },
-
     #[structopt(about = "Take two motion_lists, and produce a yaml file of their difference")]
     Diff {
         a: String,
         b: String,
+    },
+
+    #[structopt(about = "Take a motion_list and apply a yaml patch to create a new motion_list")]
+    Patch {
+        file: String,
+        patch: String,
     },
 }
