@@ -9,7 +9,7 @@ use args::{Args, Mode};
 use structopt::StructOpt;
 
 mod error;
-use error::{ErrorMessage, ErrorString};
+use error::ErrorMessage;
 
 type Result<T> = std::result::Result<T, ErrorMessage>;
 
@@ -25,17 +25,19 @@ fn main() {
 
     if let Err(y) = match &args.mode {
         Mode::Disasm { file, .. } => {
-            convert_to_yaml(&file, &args.out.as_ref().map_or("out.yml", String::as_str))
+            convert_to_yaml(file, args.out.as_ref().map_or("out.yml", String::as_str))
         }
         Mode::Asm { file, .. } => {
-            convert_to_bin(&file, &args.out.as_ref().map_or("out.bin", String::as_str))
+            convert_to_bin(file, args.out.as_ref().map_or("out.bin", String::as_str))
         }
         Mode::Diff { a, b } => {
-            diff_files(a, b, &args.out.as_ref().map_or("diff.yml", String::as_str))
+            diff_files(a, b, args.out.as_ref().map_or("diff.yml", String::as_str))
         }
-        Mode::Patch { file, patch } => {
-            patch_motion_bin(file, patch, &args.out.as_ref().map_or("patched.bin", String::as_str))
-        }
+        Mode::Patch { file, patch } => patch_motion_bin(
+            file,
+            patch,
+            args.out.as_ref().map_or("patched.bin", String::as_str),
+        ),
     } {
         println!("ERROR: {}", y);
     }
@@ -46,7 +48,7 @@ fn patch_motion_bin(file: &str, patch: &str, out_path: &str) -> Result<()> {
     let mut contents: String = String::default();
     File::open(patch)?.read_to_string(&mut contents)?;
     let diff = from_str(&contents)?;
-    
+
     let out = a.apply_new(&diff);
     motion_lib::save(out_path, &out)?;
     Ok(())
