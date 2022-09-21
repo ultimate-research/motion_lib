@@ -75,7 +75,8 @@ macro_rules! make_flags {
 }
 
 make_flags!(
-    turn, r#loop, r#move, fix_trans, fix_rot, fix_scale, unk_40, unk_80, unk_100, unk_200, unk_400
+    turn, r#loop, r#move, fix_trans, fix_rot, fix_scale, unk_40, unk_80, unk_100, unk_200, unk_400,
+    unk_800, unk_1000, unk_2000
 );
 
 #[derive(Debug, Serialize, Deserialize)]
