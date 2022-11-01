@@ -9,7 +9,7 @@ edition = "2018"
 
 [lib]
 name = "motion_lib"
-path = "src/motion_lib/lib.rs"
+path = "src//lib.rs"
 
 [[bin]]
 name = "yamlist"
