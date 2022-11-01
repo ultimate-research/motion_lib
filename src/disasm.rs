@@ -2,10 +2,9 @@ use crate::mlist::*;
 use byteorder::{LittleEndian, ReadBytesExt};
 use hash40::*;
 use indexmap::IndexMap;
-use std::io::{Cursor, Error, ErrorKind};
+use std::io::{Error, ErrorKind, Read, Seek, SeekFrom};
 
-pub fn disassemble(cursor: &mut Cursor<Vec<u8>>) -> Result<MList, Error> {
-    cursor.set_position(0);
+pub fn disassemble<R: Read + Seek>(cursor: &mut R) -> Result<MList, Error> {
     if MAGIC != cursor.read_hash40::<LittleEndian>()? {
         return Err(Error::new(
             ErrorKind::InvalidData,
@@ -28,7 +27,7 @@ pub fn disassemble(cursor: &mut Cursor<Vec<u8>>) -> Result<MList, Error> {
     })
 }
 
-fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
+fn read_motion<R: Read + Seek>(cursor: &mut R) -> Result<Motion, Error> {
     let game_script = cursor.read_hash40::<LittleEndian>()?;
     let flags = cursor.read_u16::<LittleEndian>()?.into();
     let blend_frames = cursor.read_u8()?;
@@ -56,7 +55,8 @@ fn read_motion(cursor: &mut Cursor<Vec<u8>>) -> Result<Motion, Error> {
     //align by 4
     const ALIGN: u64 = 4;
     const ALIGN_MASK: u64 = ALIGN - 1;
-    cursor.set_position((cursor.position() + ALIGN_MASK) & !ALIGN_MASK);
+    let pos = cursor.seek(SeekFrom::Current(0))?;
+    cursor.seek(SeekFrom::Start((pos + ALIGN_MASK) & !ALIGN_MASK))?;
 
     let scripts = (0..size / 8)
         .map(|_| cursor.read_hash40::<LittleEndian>())

@@ -1,9 +1,9 @@
 use crate::mlist::*;
 use byteorder::{LittleEndian, WriteBytesExt};
 use hash40::*;
-use std::io::{Cursor, Error, ErrorKind};
+use std::io::{Error, ErrorKind, Seek, SeekFrom, Write};
 
-pub fn assemble(cursor: &mut Cursor<Vec<u8>>, mlist: &MList) -> Result<(), Error> {
+pub fn assemble<W: Write + Seek>(cursor: &mut W, mlist: &MList) -> Result<(), Error> {
     cursor.write_hash40::<LittleEndian>(MAGIC)?;
     cursor.write_hash40::<LittleEndian>(mlist.motion_path)?;
     cursor.write_u64::<LittleEndian>(mlist.list.len() as u64)?;
@@ -24,7 +24,7 @@ pub fn assemble(cursor: &mut Cursor<Vec<u8>>, mlist: &MList) -> Result<(), Error
     Ok(())
 }
 
-fn write_motion(cursor: &mut Cursor<Vec<u8>>, motion: &Motion) -> Result<(), Error> {
+fn write_motion<W: Write + Seek>(cursor: &mut W, motion: &Motion) -> Result<(), Error> {
     let anm_cnt = motion.animations.len();
     if anm_cnt > 3 {
         return Err(Error::new(
@@ -51,7 +51,8 @@ fn write_motion(cursor: &mut Cursor<Vec<u8>>, motion: &Motion) -> Result<(), Err
     //align
     const ALIGN: u64 = 4;
     const ALIGN_MASK: u64 = ALIGN - 1;
-    cursor.set_position((cursor.position() + ALIGN_MASK) & !ALIGN_MASK);
+    let pos = cursor.seek(SeekFrom::Current(0))?;
+    cursor.seek(SeekFrom::Start((pos + ALIGN_MASK) & !ALIGN_MASK))?;
 
     for script in motion.scripts.iter() {
         cursor.write_hash40::<LittleEndian>(*script)?;
