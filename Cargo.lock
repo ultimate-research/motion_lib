@@ -190,6 +190,8 @@ checksum = "fc7fcc620a3bff7cdd7a365be3376c97191aeaccc2a603e600951e452615bf89"
 [[package]]
 name = "motion_list_rs"
 version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b31f51c86c98958e136a676f3f26a01f4597f163f575d038bc6c2510b1521fef"
 dependencies = [
  "byteorder",
  "diff-struct",
@@ -201,9 +203,7 @@ dependencies = [
 
 [[package]]
 name = "motion_list_rs"
-version = "1.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b31f51c86c98958e136a676f3f26a01f4597f163f575d038bc6c2510b1521fef"
+version = "1.4.1"
 dependencies = [
  "byteorder",
  "diff-struct",
@@ -392,6 +392,6 @@ name = "yamlist"
 version = "0.1.0"
 dependencies = [
  "clap",
- "motion_list_rs 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "motion_list_rs 1.4.0",
  "serde_yaml",
 ]
