@@ -3,11 +3,11 @@ name = "yamlist"
 description = "Program for converting and patching motion_list.bin files"
 repository = "https://github.com/ultimate-research/motion_lib"
 license = "MIT"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["BenHall-7 <benjaminjahall@gmail.com>"]
 edition = "2021"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
-motion_list_rs = "1.4"
+motion_list_rs = { version = "1.4.2", path = ".." }
 serde_yaml = "0.9"
