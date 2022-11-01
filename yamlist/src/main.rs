@@ -1,6 +1,6 @@
 use clap::Parser;
 use motion_lib::diff::Diff;
-use motion_lib::hash40::{read_labels, set_labels};
+use motion_lib::hash40::Hash40;
 use serde_yaml::{from_str, to_string};
 
 use std::fs::File;
@@ -18,10 +18,9 @@ fn main() {
     let args = Args::parse();
 
     if let Some(ref label_path) = args.label {
-        match read_labels(label_path) {
-            Ok(labels) => set_labels(labels),
-            Err(e) => println!("Error loading labels: {}", e),
-        }
+        let label_clone = Hash40::label_map();
+        let mut labels = label_clone.lock().unwrap();
+        labels.add_custom_labels_from_path(label_path).unwrap();
     }
 
     if let Err(y) = match &args.mode {
