@@ -4,7 +4,7 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
-pub const MAGIC: Hash40 = hash40!("motion");
+pub const MAGIC: Hash40 = hash40("motion");
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct MList {

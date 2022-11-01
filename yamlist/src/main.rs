@@ -1,20 +1,21 @@
-use diff::Diff;
-use hash40::{read_labels, set_labels};
+use clap::Parser;
+use motion_lib::diff::Diff;
+use motion_lib::hash40::{read_labels, set_labels};
 use serde_yaml::{from_str, to_string};
+
 use std::fs::File;
 use std::io::prelude::*;
 
 mod args;
-use args::{Args, Mode};
-use structopt::StructOpt;
-
 mod error;
+
+use args::{Args, Mode};
 use error::ErrorMessage;
 
 type Result<T> = std::result::Result<T, ErrorMessage>;
 
 fn main() {
-    let args = Args::from_args();
+    let args = Args::parse();
 
     if let Some(ref label_path) = args.label {
         match read_labels(label_path) {
