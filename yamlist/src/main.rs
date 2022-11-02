@@ -20,7 +20,7 @@ fn main() {
     if let Some(ref label_path) = args.label {
         let label_clone = Hash40::label_map();
         let mut labels = label_clone.lock().unwrap();
-        labels.add_custom_labels_from_path(label_path).unwrap();
+        labels.add_labels_from_path(label_path).unwrap();
     }
 
     if let Err(y) = match &args.mode {

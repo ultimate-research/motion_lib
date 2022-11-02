@@ -3,7 +3,7 @@ name = "yamlist"
 description = "Program for converting and patching motion_list.bin files"
 repository = "https://github.com/ultimate-research/motion_lib"
 license = "MIT"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["BenHall-7 <benjaminjahall@gmail.com>"]
 edition = "2021"
 
